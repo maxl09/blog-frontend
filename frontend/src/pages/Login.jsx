@@ -60,7 +60,7 @@ const Login = () => {
             console.log("Protected route response:", verifyData);
 
             // Now redirect if needed
-            window.location.href = "/";
+            window.location.href = "https://ply-instagram-clone.vercel.app/";
         } else {
             alert(data.error);
         }
