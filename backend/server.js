@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
-const nodemailer = require("nodemailer");
+// const nodemailer = require("nodemailer");
 
 const app = express()
 app.use(express.json());
@@ -18,6 +18,8 @@ app.use(cors({
 }));
 
 mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/blog-page");
+
+const PORT = process.env.PORT || 5002;
 
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
@@ -84,4 +86,4 @@ app.post('/', (req, res) => {
     }
 })
 
-app.listen(5002, () => console.log('Server running on http://localhost:5002'))
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
