@@ -22,17 +22,34 @@ const Login = () => {
 
     const handleLogin = async () => {
         if (!validate()) return;
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password })
-        });
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
 
-        if (!res.ok) {
-            const errorData = await res.json();
-            alert(errorData.error || "Login failed");
-            return;
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(errorData.error || "Login failed");
+                return;
+            }
+
+            if (data.token) {
+                // Store token in localStorage
+                localStorage.setItem('token', data.token);
+
+                // Redirect to frontend home page (React SPA)
+                window.location.href = "/";
+            } else {
+                alert(data.error || "Login failed");
+            }
+        } catch (err) {
+            console.error("Login error:", err);
+            alert("Something went wrong. Please try again.");
         }
+
 
         // const data = await res.json();
         // if (data.token) {
@@ -42,29 +59,28 @@ const Login = () => {
         //     alert(data.error);
         // }
 
-        const data = await res.json();
-        if (data.token) {
-            localStorage.setItem('token', data.token);
+        // const data = await res.json();
+        // if (data.token) {
+        //     localStorage.setItem('token', data.token);
 
-            // Example: verify token immediately
-            const token = localStorage.getItem('token');
-            const verifyRes = await fetch(`${import.meta.env.VITE_API_URL}/`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                }
-            });
+        //     // Example: verify token immediately
+        //     const token = localStorage.getItem('token');
+        //     const verifyRes = await fetch(`${import.meta.env.VITE_API_URL}/`, {
+        //         method: "GET",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //             "Authorization": `Bearer ${token}`
+        //         }
+        //     });
 
-            const verifyData = await verifyRes.json();
-            console.log("Protected route response:", verifyData);
+        //     const verifyData = await verifyRes.json();
+        //     console.log("Protected route response:", verifyData);
 
-            // Now redirect if needed
-            window.location.href = "https://ply-instagram-clone.vercel.app/";
-        } else {
-            alert(data.error);
-        }
-
+        //     // Now redirect if needed
+        //     window.location.href = "https://ply-instagram-clone.vercel.app/";
+        // } else {
+        //     alert(data.error);
+        // }
     }
 
     // Show/hide password
