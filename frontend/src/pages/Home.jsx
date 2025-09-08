@@ -15,9 +15,21 @@ const Home = () => {
     const [message, setMessage] = useState("");
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
+        // const token = localStorage.getItem("token");
 
-        fetch(`${import.meta.env.VITE_API_URL}/`, {
+        // fetch(`${import.meta.env.VITE_API_URL}/`, {
+        //     method: "GET",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //         "Authorization": `Bearer ${token}`
+        //     }
+        // })
+        //     .then(res => res.json())
+        //     .then(data => setMessage(data.message))
+        //     .catch(err => console.error("Error:", err));
+        const token = localStorage.getItem('token');
+
+        fetch("https://blog-backend-jkni.onrender.com/", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -25,8 +37,9 @@ const Home = () => {
             }
         })
             .then(res => res.json())
-            .then(data => setMessage(data.message))
+            .then(data => console.log("Protected data:", data))
             .catch(err => console.error("Error:", err));
+
     }, []);
 
     return (
