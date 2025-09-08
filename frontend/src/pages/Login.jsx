@@ -34,13 +34,37 @@ const Login = () => {
             return;
         }
 
+        // const data = await res.json();
+        // if (data.token) {
+        //     localStorage.setItem('token', data.token);
+        //     window.location.href = "/";
+        // } else {
+        //     alert(data.error);
+        // }
+
         const data = await res.json();
         if (data.token) {
             localStorage.setItem('token', data.token);
+
+            // Example: verify token immediately
+            const token = localStorage.getItem('token');
+            const verifyRes = await fetch(`${import.meta.env.VITE_API_URL}/`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            const verifyData = await verifyRes.json();
+            console.log("Protected route response:", verifyData);
+
+            // Now redirect if needed
             window.location.href = "/";
         } else {
             alert(data.error);
         }
+
     }
 
     // Show/hide password
