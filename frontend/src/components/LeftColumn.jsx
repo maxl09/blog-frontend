@@ -40,7 +40,7 @@ const LeftColumn = () => {
     return (
         <Box sx={{ minWidth: 'fit-content', width: '15%', height: '100vh', borderRight: '2px solid rgba(71, 71, 71, 0.55)', paddingX: 1.5 }}>
             <Box component={'a'} href='/' sx={{ height: 'fit-content', width: '100%', display: 'flex', justifyContent: 'start', alignItems: 'center', paddingY: 5, paddingX: 1.5 }}>
-                <img src='/public/images/instagram-logo.png' alt="instagram logo" width={'150px'} />
+                <img src='/images/instagram-logo.png' alt="instagram logo" width={'150px'} />
             </Box>
             {menu.map((item) =>
                 <Box

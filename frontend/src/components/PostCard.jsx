@@ -24,7 +24,7 @@ const PostCard = () => {
                 </IconButton>
             </Box>
             <Box sx={{ borderRadius: '5px' }}>
-                <img src='/public/images/post-image.jpg' alt="" style={{ width: '100%', borderRadius: '5px', border: '1px solid rgb(70, 70, 70)', }} />
+                <img src='/images/post-image.jpg' alt="" style={{ width: '100%', borderRadius: '5px', border: '1px solid rgb(70, 70, 70)', }} />
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
