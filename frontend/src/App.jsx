@@ -12,7 +12,6 @@ function App() {
   return (
     <div className='App'>
       <BrowserRouter>
-        <LeftColumn />
         <Routes>
           <Route path="/" element={
             <>
