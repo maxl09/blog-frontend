@@ -8,13 +8,16 @@ const nodemailer = require("nodemailer");
 const app = express()
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:5173",   // Vite frontend
+    origin: [
+        "http://localhost:5173", // for local dev
+        "https://ply-instagram-clone.vercel.app" // your deployed frontend
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
 }));
 
-mongoose.connect("mongodb://127.0.0.1:27017/blog-page");
+mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/blog-page");
 
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
@@ -24,13 +27,13 @@ const UserSchema = new mongoose.Schema({
 const User = mongoose.model("User", UserSchema);
 
 // Email transporter
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'noreply.ply.auth@gmail.com',
-        pass: 'pxzg opui oien isip'
-    }
-})
+// const transporter = nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//         user: 'noreply.ply.auth@gmail.com',
+//         pass: 'pxzg opui oien isip'
+//     }
+// })
 
 // Sign up
 app.post('/signup', async (req, res) => {
@@ -61,7 +64,7 @@ app.post('/login', async (req, res) => {
         return res.status(400).json({ error: 'Invalid credentials' })
     }
 
-    const token = jwt.sign({ id: user._id }, "secretKey", { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || "secretKey", { expiresIn: '1h' });
     res.json({ token })
 })
 
