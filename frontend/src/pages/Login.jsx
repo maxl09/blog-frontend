@@ -144,7 +144,7 @@ const Login = () => {
                                         onClick={handleTogglePasswordVisibility}
                                         edge="end"
                                     >
-                                        {showPassword ? <VisibilityOffIcon sx={{ color: 'black' }} /> : <VisibilityIcon sx={{ color: 'black' }} />}
+                                        {showPassword ? <VisibilityOffIcon sx={{ color: 'var(--foreground-color)' }} /> : <VisibilityIcon sx={{ color: 'var(--foreground-color)' }} />}
                                     </IconButton>
                                 </InputAdornment>
                             ),

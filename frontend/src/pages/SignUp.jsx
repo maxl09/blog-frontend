@@ -36,11 +36,12 @@ const SignUp = () => {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/signup`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ name, username, password })
             });
 
             const data = await res.json();
             if (data.message) {
+                setName('');
                 setUsername('');
                 setPassword('');
                 setConfirmPassword('');
@@ -135,7 +136,7 @@ const SignUp = () => {
                                         onClick={handleTogglePasswordVisibility}
                                         edge="end"
                                     >
-                                        {showPassword ? <VisibilityOffIcon sx={{ color: 'black' }} /> : <VisibilityIcon sx={{ color: 'black' }} />}
+                                        {showPassword ? <VisibilityOffIcon sx={{ color: 'var(--foreground-color)' }} /> : <VisibilityIcon sx={{ color: 'var(--foreground-color)' }} />}
                                     </IconButton>
                                 </InputAdornment>
                             ),
@@ -171,7 +172,7 @@ const SignUp = () => {
                                         onClick={handleTogglePasswordVisibility}
                                         edge="end"
                                     >
-                                        {showPassword ? <VisibilityOffIcon sx={{ color: 'black' }} /> : <VisibilityIcon sx={{ color: 'black' }} />}
+                                        {showPassword ? <VisibilityOffIcon sx={{ color: 'var(--foreground-color)' }} /> : <VisibilityIcon sx={{ color: 'var(--foreground-color)' }} />}
                                     </IconButton>
                                 </InputAdornment>
                             ),
