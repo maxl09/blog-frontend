@@ -72,14 +72,15 @@ const SignUp = () => {
                         sx={{
                             marginBottom: 0.5,
                             '& .MuiOutlinedInput-root': {
+                                color: 'var(--primary-text-color)',
                                 '& fieldset': {
-                                    borderColor: 'black',   // normal state
+                                    borderColor: 'var(--primary-text-color)',   // normal state
                                 },
                                 '&:hover fieldset': {     // hover state
-                                    borderColor: 'black',
+                                    borderColor: 'var(--primary-text-color)',
                                 },
                                 '&.Mui-focused fieldset': { // focused state
-                                    borderColor: 'black',
+                                    borderColor: 'var(--primary-text-color)',
                                 },
                             },
                         }}
@@ -91,14 +92,15 @@ const SignUp = () => {
                         sx={{
                             marginBottom: 0.5,
                             '& .MuiOutlinedInput-root': {
+                                color: 'var(--primary-text-color)',
                                 '& fieldset': {
-                                    borderColor: 'black',   // normal state
+                                    borderColor: 'var(--primary-text-color)',   // normal state
                                 },
                                 '&:hover fieldset': {     // hover state
-                                    borderColor: 'black',
+                                    borderColor: 'var(--primary-text-color)',
                                 },
                                 '&.Mui-focused fieldset': { // focused state
-                                    borderColor: 'black',
+                                    borderColor: 'var(--primary-text-color)',
                                 },
                             },
                         }}
@@ -113,14 +115,15 @@ const SignUp = () => {
                         sx={{
                             marginBottom: 0.5,
                             '& .MuiOutlinedInput-root': {
+                                color: 'var(--primary-text-color)',
                                 '& fieldset': {
-                                    borderColor: 'black',   // normal state
+                                    borderColor: 'var(--primary-text-color)',   // normal state
                                 },
                                 '&:hover fieldset': {     // hover state
-                                    borderColor: 'black',
+                                    borderColor: 'var(--primary-text-color)',
                                 },
                                 '&.Mui-focused fieldset': { // focused state
-                                    borderColor: 'black',
+                                    borderColor: 'var(--primary-text-color)',
                                 },
                             },
                         }}
@@ -148,14 +151,15 @@ const SignUp = () => {
                         sx={{
                             marginBottom: 0.5,
                             '& .MuiOutlinedInput-root': {
+                                color: 'var(--primary-text-color)',
                                 '& fieldset': {
-                                    borderColor: 'black',   // normal state
+                                    borderColor: 'var(--primary-text-color)',   // normal state
                                 },
                                 '&:hover fieldset': {     // hover state
-                                    borderColor: 'black',
+                                    borderColor: 'var(--primary-text-color)',
                                 },
                                 '&.Mui-focused fieldset': { // focused state
-                                    borderColor: 'black',
+                                    borderColor: 'var(--primary-text-color)',
                                 },
                             },
                         }}
@@ -179,16 +183,16 @@ const SignUp = () => {
                         sx={{
                             marginTop: 3,
                             paddingY: 1.2,
-                            background: 'black',
-                            color: 'white',
+                            background: 'var(--foreground-color)',
+                            color: 'var(--background-color)',
                             '&:hover': {
-                                background: 'rgba(25, 25, 25, 0.85)'
+                                background: 'rgb(211, 211, 211)'
                             }
                         }}>
                         Sign up
                     </Button>
                     <Typography
-                        sx={{ marginTop: 5, textAlign: 'center' }}>Already have an account? <span><a href='/login' style={{ textDecoration: 'underline', color: 'black', fontWeight: 500 }}>Sign in</a></span></Typography>
+                        sx={{ marginTop: 5, textAlign: 'center' }}>Already have an account? <span><a href='/login' style={{ textDecoration: 'underline', color: 'var(--primary-text-color)', fontWeight: 500 }}>Log in</a></span></Typography>
                 </Box>
             </Box>
         </Container >
