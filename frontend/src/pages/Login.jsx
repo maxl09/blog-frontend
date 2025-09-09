@@ -32,7 +32,7 @@ const Login = () => {
             const data = await res.json();
 
             if (!res.ok) {
-                alert(errorData.error || "Login failed");
+                alert(data.error || "Login failed");
                 return;
             }
 

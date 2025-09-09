@@ -8,6 +8,9 @@ import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutline
 import MapsUgcOutlinedIcon from '@mui/icons-material/MapsUgcOutlined';
 import TurnedInNotOutlinedIcon from '@mui/icons-material/TurnedInNotOutlined';
 import InsertEmoticonOutlinedIcon from '@mui/icons-material/InsertEmoticonOutlined';
+import { Bookmark, Heart, MessageCircle, Send } from 'lucide-react';
+
+
 
 const PostCard = () => {
     return (
@@ -29,17 +32,17 @@ const PostCard = () => {
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <IconButton sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
-                        <FavoriteBorderIcon />
+                        <Heart />
                     </IconButton>
                     <IconButton sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
-                        <MapsUgcOutlinedIcon />
+                        <MessageCircle />
                     </IconButton>
                     <IconButton sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
-                        <NearMeOutlinedIcon />
+                        <Send />
                     </IconButton>
                 </Box>
                 <IconButton sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
-                    <TurnedInNotOutlinedIcon />
+                    <Bookmark />
                 </IconButton>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

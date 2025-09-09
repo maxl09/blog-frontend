@@ -8,3 +8,7 @@
     --toggle-bg: yellow;
     --toggle-fg: green;
 }
+
+html body {
+    background-color: black;
+}
