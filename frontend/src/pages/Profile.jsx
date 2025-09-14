@@ -12,7 +12,7 @@ const Profile = () => {
     };
     return (
         <Container disableGutters maxWidth='md' sx={{
-            paddingY: 7
+            paddingY: 7,
         }}>
             <Box sx={{ display: 'flex' }}>
                 <Avatar sx={{ width: '150px', height: '150px' }} />

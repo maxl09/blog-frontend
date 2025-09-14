@@ -39,6 +39,7 @@ const Login = () => {
             if (data.token) {
                 // Store token in localStorage
                 localStorage.setItem('token', data.token);
+                localStorage.setItem("user", JSON.stringify(data.user));
 
                 // Redirect to frontend home page (React SPA)
                 window.location.href = "/";

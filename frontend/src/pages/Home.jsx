@@ -44,9 +44,11 @@ const Home = () => {
 
     return (
         <>
-            <Container disableGutters maxWidth='sm' sx={{
-                paddingY: 5, paddingLeft: 0, paddingRight: 20
-            }}>
+            <Container disableGutters maxWidth='sm'
+                sx={{
+                    paddingY: 5,
+                    paddingX: 10
+                }}>
                 <PostCard />
                 <PostCard />
             </Container >

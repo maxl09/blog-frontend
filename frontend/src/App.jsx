@@ -1,13 +1,20 @@
 import { useState } from 'react'
 import './App.css'
 import './index.css'
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
 import Login from './pages/Login';
 import Home from './pages/Home';
 import SignUp from './pages/SignUp';
 import LeftColumn from './components/LeftColumn';
 import Profile from './pages/Profile';
 import { Search } from 'lucide-react';
+import Users from './pages/Users';
+import { useAuth } from './context/useAuth';
+
+const AdminRoute = ({ children }) => {
+  const { user } = useAuth();
+  return user?.isAdmin ? children : <Navigate to='/' replace />
+}
 
 const MainLayout = () => (
   <>
@@ -17,7 +24,6 @@ const MainLayout = () => (
 )
 
 function App() {
-
   return (
     <div className='App'>
       <BrowserRouter>
@@ -30,9 +36,14 @@ function App() {
           {/* Pages without left column */}
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/users" element={(
+            <AdminRoute>
+              <Users />
+            </AdminRoute>
+          )} />
         </Routes>
       </BrowserRouter>
-    </div>
+    </div >
   )
 }
 
