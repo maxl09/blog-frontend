@@ -11,23 +11,45 @@ import InsertEmoticonOutlinedIcon from '@mui/icons-material/InsertEmoticonOutlin
 import { Bookmark, Heart, MessageCircle, Send } from 'lucide-react';
 
 
+function postCreatedAt(date) {
+    const now = new Date();
+    const postDate = new Date(date);
+    const diff = now - postDate;
 
-const PostCard = () => {
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const weeks = Math.floor(days / 7);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(days / 365);
+
+    if (years > 0) return years + 'y';
+    if (months > 0) return months + 'm';
+    if (weeks > 0) return weeks + 'w';
+    if (days > 0) return days + 'd';
+    if (hours > 0) return hours + 'h';
+    if (minutes > 0) return minutes + 'm';
+    return seconds + 's';
+}
+
+const PostCard = ({ post }) => {
+    const navigate = useNavigate();
     return (
         <Box sx={{ marginTop: 3, paddingBottom: 1.5, borderBottom: '1px solid rgb(36, 36, 36)' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 1.2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.7 }}>
                     <Avatar sx={{ cursor: 'pointer' }} />
-                    <Typography variant='body1' sx={{ fontWeight: 700, marginLeft: 1, cursor: 'pointer' }}>ngokienhuy_bap</Typography>
+                    <Typography onClick={() => navigate(`/user/${post.author._id}`)} variant='body1' sx={{ fontWeight: 700, marginLeft: 1, cursor: 'pointer' }}>{post.author.username}</Typography>
                     <Typography variant='body1'>•</Typography>
-                    <Typography variant='body1' sx={{ color: 'rgb(203, 203, 203)' }}>1d</Typography>
+                    <Typography variant='body1' sx={{ color: 'rgb(183, 183, 183)' }}>{postCreatedAt(post.createdAt)}</Typography>
                 </Box>
                 <IconButton sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
                     <MoreHorizIcon />
                 </IconButton>
             </Box>
             <Box sx={{ borderRadius: '5px' }}>
-                <img src='/images/post-image.jpg' alt="" style={{ width: '100%', borderRadius: '5px', border: '1px solid rgb(70, 70, 70)', }} />
+                <img src={post.image} alt="" style={{ width: '100%', borderRadius: '5px', border: '1px solid rgb(70, 70, 70)', }} />
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -46,11 +68,12 @@ const PostCard = () => {
                 </IconButton>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Box sx={{ display: 'flex', alignItems: 'start', gap: 0.7 }}>
-                    <Typography variant='body1'><span style={{ fontWeight: 700, cursor: 'pointer' }}>ngokienhuy_bap</span><span style={{ marginLeft: '5px' }}>Thở oxy hồi hộp chờ 2 Ngày 1 Đêm mùa 4 nhó 😤 </span></Typography>
+                <Box>
+                    <Typography variant='body1' sx={{ fontWeight: 700, marginY: 0.5 }}>{post.likes.length < 2 ? `${post.likes.length} like` : `${post.likes.length} likes`}</Typography>
+                    <Typography variant='body1'><span style={{ fontWeight: 700, cursor: 'pointer' }}>{post.author.username}</span><span style={{ marginLeft: '5px' }}>{post.caption}</span></Typography>
                 </Box>
             </Box>
-            <Typography sx={{ color: 'rgb(127, 127, 127)', marginTop: 1, cursor: 'pointer' }}>View all 5 comments</Typography>
+            {/* <Typography sx={{ color: 'rgb(127, 127, 127)', marginTop: 1, cursor: 'pointer' }}>View all 5 comments</Typography> */}
             <TextField
                 placeholder='Add a comment...'
                 sx={{
@@ -78,8 +101,7 @@ const PostCard = () => {
                     endAdornment: (
                         <InputAdornment position="start">
                             <IconButton
-                                edge="start"
-                            >
+                                edge="start">
                                 <InsertEmoticonOutlinedIcon sx={{ color: 'rgb(127, 127, 127)', '&:hover': { color: 'rgb(89, 89, 89)' } }} />
                             </IconButton>
                         </InputAdornment>

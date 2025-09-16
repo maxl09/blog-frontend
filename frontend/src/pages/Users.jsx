@@ -1,10 +1,12 @@
-import { Avatar, Box, Button, Container, Divider, Skeleton, Typography } from '@mui/material';
+import { Avatar, Box, Button, Container, Divider, IconButton, Skeleton, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react'
-import { Trash } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, Trash } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Users = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
     const getAllUsers = async () => {
         try {
             setLoading(true)
@@ -32,9 +34,18 @@ const Users = () => {
 
     return (
         <Container disableGutters maxWidth='sm' sx={{ paddingY: 6 }}>
-            <Typography variant='h3' sx={{ textAlign: 'center', marginBottom: 4 }}>
-                Users
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                <IconButton onClick={() => navigate(-1)} sx={{ color: 'white', }}>
+                    <ArrowLeft size={35} />
+                </IconButton>
+                <Typography variant='h3' sx={{ textAlign: 'center', marginBottom: 4 }}>
+                    Users
+                </Typography>
+                <IconButton sx={{ color: 'white', opacity: 0, cursor: 'default' }}>
+                    <ArrowLeft />
+                </IconButton>
+            </Box>
+
             <Box sx={{ border: '1px solid white', borderRadius: '20px', paddingY: 1.5, paddingX: 3 }}>
                 {loading
                     ?

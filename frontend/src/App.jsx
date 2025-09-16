@@ -10,6 +10,9 @@ import Profile from './pages/Profile';
 import { Search } from 'lucide-react';
 import Users from './pages/Users';
 import { useAuth } from './context/useAuth';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import CreatePost from './pages/CreatePost';
 
 const AdminRoute = ({ children }) => {
   const { user } = useAuth();
@@ -27,11 +30,13 @@ function App() {
   return (
     <div className='App'>
       <BrowserRouter>
+        <ToastContainer />
         <Routes>
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/search" element={<Search />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/posts/create" element={<CreatePost />} />
+            <Route path="/user/:userId" element={<Profile />} />
           </Route>
           {/* Pages without left column */}
           <Route path="/signup" element={<SignUp />} />

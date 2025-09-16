@@ -2,8 +2,12 @@ import { Box, Button, Container, IconButton, InputAdornment, TextField, Typograp
 import React, { use, useState } from 'react'
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [name, setName] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -12,27 +16,28 @@ const SignUp = () => {
     const [errors, setErrors] = useState({});
 
     const validate = () => {
-        const newErrors = {};
+        let error = '';
 
-        if (!name) newErrors.name = 'Name is required'
-        if (!username) newErrors.username = 'Username is required'
+        if (name.length < 3) error = "Name must be at least 3 characters";
+        else if (username.length < 6) error = "Username must be at least 6 characters";
+        else if (!/[A-Z]/.test(password)) error = "Password must include an uppercase letter";
+        else if (!/[0-9]/.test(password)) error = "Password must include a number";
+        else if (password.length < 8) error = "Password must be at least 8 characters";
+        else if (confirmPassword !== password) error = "Passwords do not match";
 
-        if (!/[A-Z]/.test(password)) newErrors.password = 'Password must include an uppercase letter';
-        if (!/[0-9]/.test(password)) newErrors.password = 'Password must include a number';
-        if (password.length < 8) newErrors.password = 'Password must be at least 8 characters';
+        if (error) {
+            toast.error(error);
+            return;
+        }
 
-        // Confirm password
-        if (confirmPassword !== password) newErrors.confirmPassword = 'Passwords do not match';
-
-        setErrors(newErrors);
-
-        return Object.keys(newErrors).length === 0;
+        return true;
     }
 
     const handleSignup = async () => {
 
         if (!validate()) return;
         try {
+            setLoading(true);
             const res = await fetch(`${import.meta.env.VITE_API_URL}/signup`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -45,12 +50,18 @@ const SignUp = () => {
                 setUsername('');
                 setPassword('');
                 setConfirmPassword('');
-                alert(data.message);
+                // alert(data.message);
+                toast.success(data.message)
+                navigate('/login')
             } else if (data.error) {
-                alert(data.error);
+                toast.error(data.error)
+                // alert(data.error);
             }
+            setLoading(false);
         } catch (err) {
-            console.error('Something went wrong')
+            // console.error('Something went wrong')
+            // toast.error(err.response?.data?.error || "Something went wrong");
+            toast.error(err.data.error)
         }
     }
 
@@ -86,7 +97,6 @@ const SignUp = () => {
                             },
                         }}
                         onChange={(e) => setName(e.target.value)} />
-                    {errors.name && <Typography variant='body2' sx={{ color: 'red', marginBottom: 1 }}>{errors.name}</Typography>}
                     <Typography variant='h7'>Username</Typography>
                     <TextField fullWidth
                         placeholder='Enter your username'
@@ -106,8 +116,6 @@ const SignUp = () => {
                             },
                         }}
                         onChange={(e) => setUsername(e.target.value)} />
-                    {errors.username && <Typography variant='body2' sx={{ color: 'red', marginBottom: 1 }}>{errors.username}</Typography>}
-
                     <Typography variant='h7'>Password</Typography>
                     <TextField
                         type={showPassword ? 'text' : 'password'}
@@ -142,8 +150,6 @@ const SignUp = () => {
                             ),
                         }}
                         onChange={(e) => setPassword(e.target.value)} />
-                    {errors.password && <Typography variant='body2' sx={{ color: 'red', marginBottom: 1 }}>{errors.password}</Typography>}
-
                     <Typography variant='h7'>Confirm Password</Typography>
                     <TextField
                         type={showPassword ? 'text' : 'password'}
@@ -178,9 +184,9 @@ const SignUp = () => {
                             ),
                         }}
                         onChange={(e) => setConfirmPassword(e.target.value)} />
-                    {errors.confirmPassword && <Typography variant='body2' sx={{ color: 'red', marginBottom: 1 }}>{errors.confirmPassword}</Typography>}
                     <Button
                         onClick={handleSignup}
+                        loading={loading}
                         sx={{
                             marginTop: 3,
                             paddingY: 1.2,

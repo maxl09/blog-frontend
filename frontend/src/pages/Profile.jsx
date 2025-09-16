@@ -1,15 +1,67 @@
-import { Avatar, Box, Button, Container, Icon, Tab, Tabs, Typography } from '@mui/material'
-import { Bookmark, Grid3x3, ImageDown, LayoutList, PhoneIcon, TableProperties } from 'lucide-react'
-import React from 'react'
+import { Avatar, Box, Button, Container, Grid, Icon, Tab, Tabs, Typography } from '@mui/material'
+import { Bookmark, Grid3x3, Heart, ImageDown, LayoutList, MessageCircle, PhoneIcon, TableProperties } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
 import AcUnitIcon from '@mui/icons-material/AcUnit';
+import { useParams } from 'react-router-dom';
 
 const Profile = () => {
 
-    const [value, setValue] = React.useState(0);
+    const [value, setValue] = useState(0);
+    const { userId } = useParams();
+    const [user, setUser] = useState({});
+    const [posts, setPosts] = useState([]);
+
+    const images = ['/public/images/post-image.jpg', '/public/images/bg-img.jpeg', '/public/images/junvu-img.jpg', '/public/images/photography-img.jpeg']
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
+
+    const getUserProfile = async () => {
+        try {
+            // setLoading(true)
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/user/${userId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const data = await res.json();
+            setUser(data)
+            console.log("Data", data)
+            // setLoading(false)
+        } catch (err) {
+            console.error("Error:", err.message)
+            console.error('Something went wrong')
+        }
+    }
+
+    const getPosts = async () => {
+        try {
+            // setLoading(true)
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/posts`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const data = await res.json();
+            setPosts(data)
+            console.log("Data", data)
+            // setLoading(false)
+        } catch (err) {
+            console.error("Error:", err.message)
+            console.error('Something went wrong')
+        }
+    }
+
+    useEffect(() => {
+        getUserProfile();
+    }, [userId])
     return (
         <Container disableGutters maxWidth='md' sx={{
             paddingY: 7,
@@ -18,7 +70,8 @@ const Profile = () => {
                 <Avatar sx={{ width: '150px', height: '150px' }} />
                 <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginLeft: 10, width: '100%' }}>
                     <Box sx={{ display: 'flex', gap: 2 }}>
-                        <Typography variant='h6'>ngokienhuy_bap</Typography>
+                        {/* <Typography variant='h6'>User ID: {userId}</Typography> */}
+                        <Typography variant='h6'>{user?.username}</Typography>
                         <Button sx={{
                             color: 'white',
                             fontWeight: 700,
@@ -33,25 +86,25 @@ const Profile = () => {
                         <Typography sx={{ display: 'flex', gap: '5px', color: 'rgba(168, 168, 168, 1)' }}>
                             <span style={{
                                 fontWeight: 700, color: 'white'
-                            }}>27</span>
+                            }}>{user?.posts?.length}</span>
                             posts
                         </Typography>
                         <Typography sx={{ display: 'flex', gap: '5px', color: 'rgba(168, 168, 168, 1)' }}>
                             <span style={{
                                 fontWeight: 700, color: 'white'
-                            }}>88</span>
+                            }}>0</span>
                             followers
                         </Typography>
                         <Typography sx={{ display: 'flex', gap: '5px', color: 'rgba(168, 168, 168, 1)' }}>
                             <span style={{
                                 fontWeight: 700, color: 'white'
-                            }}>300</span>
+                            }}>0</span>
                             following
                         </Typography>
                     </Box>
-                    <Box>
-                        <Typography sx={{ fontWeight: 700 }}>Ngo Kien Huy</Typography>
-                        <Typography>Vietnam</Typography>
+                    <Box sx={{ paddingBottom: user.bio ? 0 : 5 }}>
+                        <Typography sx={{ fontWeight: 700, textTransform: 'capitalize' }}>{user?.name}</Typography>
+                        <Typography>{user?.bio}</Typography>
                     </Box>
                 </Box>
             </Box>
@@ -89,7 +142,41 @@ const Profile = () => {
                 </Tabs>
             </Box>
             <CustomTabPanel value={value} index={0}>
-                Posts
+                <Box>
+                    <Grid container spacing={0.3}>
+                        {images.map((item, index) => (
+                            <Grid size={4} key={index} sx={{ position: 'relative' }} >
+                                <Box className='overlay'
+                                    sx={{
+                                        position: 'absolute',
+                                        width: '100%',
+                                        height: '100%',
+                                        minHeight: '400px',
+                                        backgroundColor: 'rgba(0, 0, 0, 0.78)',
+                                        opacity: 0,
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        gap: 3.5,
+                                        transition: '0.3s opacity ease', cursor: 'pointer',
+                                        '&:hover': {
+                                            opacity: 1
+                                        }
+                                    }}
+                                >
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.7 }}>
+                                        <Heart strokeWidth={2.5} size={30} />
+                                        <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>20</Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.7 }}>
+                                        <MessageCircle strokeWidth={2.5} size={27} />
+                                        <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>20</Typography>
+                                    </Box>
+                                </Box>
+                                <img src={item} alt="" style={{ width: '100%', height: '100%', minHeight: '400px', objectFit: 'cover' }} />
+                            </Grid>))}
+                    </Grid>
+                </Box>
             </CustomTabPanel>
             <CustomTabPanel value={value} index={1}>
                 Saved
@@ -112,7 +199,7 @@ function CustomTabPanel(props) {
             aria-labelledby={`simple-tab-${index}`}
             {...other}
         >
-            {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+            {value === index && <Box>{children}</Box>}
         </Box>
     );
 }

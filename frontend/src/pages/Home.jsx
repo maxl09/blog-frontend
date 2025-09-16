@@ -12,35 +12,30 @@ import PostCard from '../components/PostCard';
 
 const Home = () => {
 
-    const [message, setMessage] = useState("");
+    const [posts, setPosts] = useState([]);
+
+    const getPosts = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/posts`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const data = await res.json();
+            setPosts(data)
+            console.log("Data", data)
+        } catch (error) {
+            console.error("Error:", err.message)
+            console.error('Something went wrong')
+        }
+    }
 
     useEffect(() => {
-        // const token = localStorage.getItem("token");
-
-        // fetch(`${import.meta.env.VITE_API_URL}/`, {
-        //     method: "GET",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //         "Authorization": `Bearer ${token}`
-        //     }
-        // })
-        //     .then(res => res.json())
-        //     .then(data => setMessage(data.message))
-        //     .catch(err => console.error("Error:", err));
-        const token = localStorage.getItem('token');
-
-        fetch("https://blog-backend-jkni.onrender.com/", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        })
-            .then(res => res.json())
-            .then(data => console.log("Protected data:", data))
-            .catch(err => console.error("Error:", err));
-
-    }, []);
+        getPosts();
+    }, [posts]);
 
     return (
         <>
@@ -49,8 +44,11 @@ const Home = () => {
                     paddingY: 5,
                     paddingX: 10
                 }}>
-                <PostCard />
-                <PostCard />
+                {posts.map((post) => (
+                    <PostCard post={post} />
+                ))}
+                {/* 
+                <PostCard /> */}
             </Container >
         </>
 

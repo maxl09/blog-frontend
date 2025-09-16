@@ -1,6 +1,6 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, Typography } from '@mui/material'
+import { Box, Button, Dialog, DialogActions, DialogContent, TextField, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useContext } from "react";
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
@@ -8,7 +8,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SearchIcon from '@mui/icons-material/Search';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Users } from 'lucide-react';
+import { SquarePlus, Users } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
 // import { ThemeContext } from '../theme';
 
@@ -16,11 +16,13 @@ const LeftColumn = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
+    const [openCreatePost, setOpenCreatePost] = useState(false);
 
     const menu = [
         { icon: HomeIcon, label: 'Home', path: '/' },
         { icon: SearchIcon, label: 'Search', path: '/search' },
-        { icon: AccountCircleIcon, label: 'Profile', path: '/profile' },
+        { icon: SquarePlus, label: 'Create', path: '/posts/create' },
+        { icon: AccountCircleIcon, label: 'Profile', path: `/user/${user.id}` },
         { icon: Users, label: 'Users', path: '/users' },
         { icon: LogoutIcon, label: 'Logout', path: '/login' },
     ]
@@ -41,7 +43,7 @@ const LeftColumn = () => {
         if (path === '/login') localStorage.removeItem('token'); // logout button
         navigate(path)
     }
-
+    // Logout
     const handleOpenLogout = () => {
         setOpenLogoutDialog(true);
     }
@@ -82,6 +84,8 @@ const LeftColumn = () => {
                             <Typography variant='h7' sx={{ fontWeight: 400 }}>{item.label}</Typography>
                         </Box>
                     )}
+
+                {/* For Logout */}
                 <Dialog
                     open={openLogoutDialog}
                     onClose={handleCloseLogout}
@@ -104,9 +108,7 @@ const LeftColumn = () => {
                             No
                         </Button>
                     </DialogActions>
-
                 </Dialog>
-
             </Box >
         </Box >
     )

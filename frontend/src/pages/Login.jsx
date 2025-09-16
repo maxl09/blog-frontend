@@ -2,27 +2,43 @@ import { Box, Button, Container, IconButton, InputAdornment, TextField, Typograp
 import React, { useState } from 'react'
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const validate = () => {
-        const newErrors = {}
+        let error = '';
+        if (!username) error = 'Please enter your username'
+        else if (!password) error = 'Please enter your password'
 
-        if (!username) newErrors.username = 'Please enter your username'
-        if (!password) newErrors.password = 'Please enter your password'
+        if (error) {
+            toast.error(error)
+            return;
+        }
 
-        setErrors(newErrors);
+        return true;
 
-        return Object.keys(newErrors).length === 0;
+        // const newErrors = {}
+
+        // if (!username) newErrors.username = 'Please enter your username'
+        // if (!password) newErrors.password = 'Please enter your password'
+
+        // setErrors(newErrors);
+
+        // return Object.keys(newErrors).length === 0;
     }
 
     const handleLogin = async () => {
         if (!validate()) return;
         try {
+            setLoading(true);
             const res = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -32,7 +48,9 @@ const Login = () => {
             const data = await res.json();
 
             if (!res.ok) {
-                alert(data.error || "Login failed");
+                // console.log('!res.ok')
+                toast.error(data.error)
+                // alert("Login failed !res.ok");
                 return;
             }
 
@@ -42,13 +60,19 @@ const Login = () => {
                 localStorage.setItem("user", JSON.stringify(data.user));
 
                 // Redirect to frontend home page (React SPA)
-                window.location.href = "/";
+                toast(`Welcome back, ${data.user.name}!`)
+                navigate('/')
+                // window.location.href = "/";
             } else {
-                alert(data.error || "Login failed");
+                toast.error(data.error)
+
+                // alert(data.error || "Login failed");
             }
+            setLoading(false);
         } catch (err) {
             console.error("Login error:", err);
-            alert("Something went wrong. Please try again.");
+            // alert();
+            toast.error("Something went wrong. Please try again.")
         }
 
 
@@ -155,6 +179,7 @@ const Login = () => {
                     {/* <Typography component='a' href='/' sx={{ textDecoration: 'none', color: 'black', textAlign: 'end', marginTop: 1, '&:hover': { color: 'rgba(63, 63, 63, 0.84)' } }}>Forgot Password?</Typography> */}
                     <Button
                         onClick={handleLogin}
+                        loading={loading}
                         sx={{
                             marginTop: 3,
                             paddingY: 1.2,
