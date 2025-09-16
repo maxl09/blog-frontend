@@ -1,5 +1,5 @@
-import { Avatar, Box, Button, Container, IconButton, InputAdornment, TextField, Typography } from '@mui/material'
-import React, { useEffect } from 'react'
+import { Avatar, Box, Button, Container, IconButton, InputAdornment, Menu, MenuItem, TextField, Typography } from '@mui/material'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -9,6 +9,7 @@ import MapsUgcOutlinedIcon from '@mui/icons-material/MapsUgcOutlined';
 import TurnedInNotOutlinedIcon from '@mui/icons-material/TurnedInNotOutlined';
 import InsertEmoticonOutlinedIcon from '@mui/icons-material/InsertEmoticonOutlined';
 import { Bookmark, Heart, MessageCircle, Send } from 'lucide-react';
+import { useAuth } from '../context/useAuth';
 
 
 function postCreatedAt(date) {
@@ -33,8 +34,20 @@ function postCreatedAt(date) {
     return seconds + 's';
 }
 
-const PostCard = ({ post }) => {
+const PostCard = ({ post, deletePost }) => {
+    const { user } = useAuth();
     const navigate = useNavigate();
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+    const handleOpenThreeDots = (event) => {
+        setAnchorEl(event.currentTarget)
+    }
+    const handleCloseThreeDots = () => {
+        setAnchorEl(null)
+    }
+    // const displayDeletePostBtn = () => {
+    //     return user?.isAdmin;
+    // }
     return (
         <Box sx={{ marginTop: 3, paddingBottom: 1.5, borderBottom: '1px solid rgb(36, 36, 36)' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 1.2 }}>
@@ -44,12 +57,22 @@ const PostCard = ({ post }) => {
                     <Typography variant='body1'>•</Typography>
                     <Typography variant='body1' sx={{ color: 'rgb(183, 183, 183)' }}>{postCreatedAt(post.createdAt)}</Typography>
                 </Box>
-                <IconButton sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
-                    <MoreHorizIcon />
+                <IconButton sx={{
+                    color: 'white',
+                    '&:hover': { color: 'rgb(212, 212, 212)' },
+                    display: (user?.isAdmin || post?.author._id === user?.id) ? 'flex' : 'none'
+                }}>
+                    <MoreHorizIcon onClick={handleOpenThreeDots} />
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleCloseThreeDots}>
+                        <MenuItem onClick={() => deletePost(post?._id)}>Delete</MenuItem>
+                    </Menu>
                 </IconButton>
             </Box>
-            <Box sx={{ borderRadius: '5px' }}>
-                <img src={post.image} alt="" style={{ width: '100%', borderRadius: '5px', border: '1px solid rgb(70, 70, 70)', }} />
+            <Box sx={{ borderRadius: '5px', marginTop: 1 }}>
+                <img src={post.image} alt="" style={{ width: '100%', minHeight: '50%', height: '600px', objectFit: 'cover', borderRadius: '5px', border: '1px solid rgb(70, 70, 70)', }} />
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -108,7 +131,7 @@ const PostCard = ({ post }) => {
                     ),
                 }}
             />
-        </Box>
+        </Box >
     )
 }
 

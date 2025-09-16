@@ -9,7 +9,7 @@ const Profile = () => {
     const [value, setValue] = useState(0);
     const { userId } = useParams();
     const [user, setUser] = useState({});
-    const [posts, setPosts] = useState([]);
+    const [myPosts, setMyPosts] = useState([]);
 
     const images = ['/public/images/post-image.jpg', '/public/images/bg-img.jpeg', '/public/images/junvu-img.jpg', '/public/images/photography-img.jpeg']
 
@@ -38,7 +38,7 @@ const Profile = () => {
         }
     }
 
-    const getPosts = async () => {
+    const getMyPosts = async () => {
         try {
             // setLoading(true)
             const token = localStorage.getItem("token");
@@ -50,7 +50,8 @@ const Profile = () => {
                 },
             });
             const data = await res.json();
-            setPosts(data)
+            const posts = data.filter((data) => data.author._id === userId);
+            setMyPosts(posts);
             console.log("Data", data)
             // setLoading(false)
         } catch (err) {
@@ -61,8 +62,9 @@ const Profile = () => {
 
     useEffect(() => {
         getUserProfile();
-        getPosts();
-    }, [])
+        getMyPosts();
+    }, [userId]);
+
     return (
         <Container disableGutters maxWidth='md' sx={{
             paddingY: 7,
@@ -87,13 +89,13 @@ const Profile = () => {
                         <Typography sx={{ display: 'flex', gap: '5px', color: 'rgba(168, 168, 168, 1)' }}>
                             <span style={{
                                 fontWeight: 700, color: 'white'
-                            }}>{user?.posts?.length}</span>
-                            posts
+                            }}>{myPosts.length}</span>
+                            {myPosts.length > 1 ? 'posts' : 'post'}
                         </Typography>
                         <Typography sx={{ display: 'flex', gap: '5px', color: 'rgba(168, 168, 168, 1)' }}>
                             <span style={{
                                 fontWeight: 700, color: 'white'
-                            }}>0</span>
+                            }}></span>
                             followers
                         </Typography>
                         <Typography sx={{ display: 'flex', gap: '5px', color: 'rgba(168, 168, 168, 1)' }}>
@@ -145,7 +147,7 @@ const Profile = () => {
             <CustomTabPanel value={value} index={0}>
                 <Box>
                     <Grid container spacing={0.3}>
-                        {posts.map((post, index) => (
+                        {myPosts.map((post, index) => (
                             <Grid size={4} key={index} sx={{ position: 'relative' }} >
                                 <Box className='overlay'
                                     sx={{
