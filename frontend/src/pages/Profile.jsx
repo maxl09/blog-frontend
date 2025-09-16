@@ -61,7 +61,8 @@ const Profile = () => {
 
     useEffect(() => {
         getUserProfile();
-    }, [userId])
+        getPosts();
+    }, [])
     return (
         <Container disableGutters maxWidth='md' sx={{
             paddingY: 7,
@@ -144,7 +145,7 @@ const Profile = () => {
             <CustomTabPanel value={value} index={0}>
                 <Box>
                     <Grid container spacing={0.3}>
-                        {images.map((item, index) => (
+                        {posts.map((post, index) => (
                             <Grid size={4} key={index} sx={{ position: 'relative' }} >
                                 <Box className='overlay'
                                     sx={{
@@ -173,7 +174,7 @@ const Profile = () => {
                                         <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>20</Typography>
                                     </Box>
                                 </Box>
-                                <img src={item} alt="" style={{ width: '100%', height: '100%', minHeight: '400px', objectFit: 'cover' }} />
+                                <img src={post.image} alt="" style={{ width: '100%', height: '100%', minHeight: '400px', objectFit: 'cover' }} />
                             </Grid>))}
                     </Grid>
                 </Box>
