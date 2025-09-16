@@ -19,10 +19,10 @@ const SignUp = () => {
         let error = '';
 
         if (name.length < 3) error = "Name must be at least 3 characters";
-        else if (username.length < 6) error = "Username must be at least 6 characters";
-        else if (!/[A-Z]/.test(password)) error = "Password must include an uppercase letter";
-        else if (!/[0-9]/.test(password)) error = "Password must include a number";
-        else if (password.length < 8) error = "Password must be at least 8 characters";
+        // else if (username.length < 6) error = "Username must be at least 6 characters";
+        // else if (!/[A-Z]/.test(password)) error = "Password must include an uppercase letter";
+        // else if (!/[0-9]/.test(password)) error = "Password must include a number";
+        // else if (password.length < 8) error = "Password must be at least 8 characters";
         else if (confirmPassword !== password) error = "Passwords do not match";
 
         if (error) {
