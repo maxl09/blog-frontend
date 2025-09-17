@@ -34,7 +34,7 @@ function postCreatedAt(date) {
     return seconds + 's';
 }
 
-const PostCard = ({ post, deletePost }) => {
+const PostCard = ({ post, createLike, deletePost }) => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState(null);
@@ -45,9 +45,21 @@ const PostCard = ({ post, deletePost }) => {
     const handleCloseThreeDots = () => {
         setAnchorEl(null)
     }
-    // const displayDeletePostBtn = () => {
-    //     return user?.isAdmin;
-    // }
+
+    const [likes, setLikes] = useState(post.likes || []);
+    const [isLiked, setIsLiked] = useState(Boolean(post.likes.some(like => like === user.id)));
+
+    const handleLike = async () => {
+        await createLike(post._id); // call backend
+        if (likes.some(like => like === user.id)) {
+            setLikes(likes.filter(item => item !== user.id))
+            setIsLiked(false)
+        } else {
+            setLikes([...likes, user.id])
+            setIsLiked(true)
+        }
+    };
+
     return (
         <Box sx={{ marginTop: 3, paddingBottom: 1.5, borderBottom: '1px solid rgb(36, 36, 36)' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 1.2 }}>
@@ -71,16 +83,21 @@ const PostCard = ({ post, deletePost }) => {
                     </Menu>
                 </IconButton>
             </Box>
-            <Box sx={{ borderRadius: '5px', marginTop: 1 }}>
+            <Box
+                // onDoubleClick={handleLike} 
+                sx={{ cursor: 'pointer', borderRadius: '5px', marginTop: 1 }}>
                 <img src={post.image} alt="" style={{ width: '100%', minHeight: '50%', height: '600px', objectFit: 'cover', borderRadius: '5px', border: '1px solid rgb(70, 70, 70)', }} />
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <IconButton sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
-                        <Heart />
+                    <IconButton onClick={handleLike} sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
+                        <Heart
+                            fill={isLiked ? 'red' : 'transparent'}
+                            stroke={isLiked ? 'red' : 'white'}
+                        />
                     </IconButton>
                     <IconButton sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
-                        <MessageCircle />
+                        <MessageCircle size={21} />
                     </IconButton>
                     <IconButton sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
                         <Send />
@@ -92,7 +109,7 @@ const PostCard = ({ post, deletePost }) => {
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Box>
-                    <Typography variant='body1' sx={{ fontWeight: 700, marginY: 0.5 }}>{post.likes.length < 2 ? `${post.likes.length} like` : `${post.likes.length} likes`}</Typography>
+                    <Typography variant='body1' sx={{ fontWeight: 700, marginY: 0.5 }}>{likes.length < 2 ? `${likes.length} like` : `${likes.length} likes`}</Typography>
                     <Typography variant='body1'><span style={{ fontWeight: 700, cursor: 'pointer' }}>{post.author.username}</span><span style={{ marginLeft: '5px' }}>{post.caption}</span></Typography>
                 </Box>
             </Box>

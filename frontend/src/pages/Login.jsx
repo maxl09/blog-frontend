@@ -68,11 +68,12 @@ const Login = () => {
 
                 // alert(data.error || "Login failed");
             }
-            setLoading(false);
         } catch (err) {
             console.error("Login error:", err);
             // alert();
             toast.error("Something went wrong. Please try again.")
+        } finally {
+            setLoading(false);
         }
 
 

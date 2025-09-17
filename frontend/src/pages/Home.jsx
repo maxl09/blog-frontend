@@ -35,7 +35,6 @@ const Home = () => {
         }
     }
 
-
     const deletePost = async (postId) => {
         try {
             const token = localStorage.getItem("token");
@@ -61,6 +60,30 @@ const Home = () => {
         }
     }
 
+    const createLike = async (postId) => {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/posts/${postId}/like`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ postId })
+            });
+            const data = await res.json();
+            console.log("Liked Post", data);
+            if (!res.ok) {
+                toast.error("There's an issue with liking the post")
+            } else {
+                toast('Post Liked');
+            }
+        } catch (error) {
+            console.error("Error:", error.message)
+            console.error('Something went wrong')
+        }
+    }
+
     useEffect(() => {
         getPosts();
     }, []);
@@ -77,7 +100,7 @@ const Home = () => {
                         <Typography variant='h5'>No posts</Typography>
                     </Box>
                     : posts.map((post) => (
-                        <PostCard post={post} deletePost={deletePost} />
+                        <PostCard post={post} createLike={createLike} deletePost={deletePost} />
                     ))}
             </Container >
         </>
