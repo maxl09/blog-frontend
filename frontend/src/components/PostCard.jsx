@@ -10,6 +10,7 @@ import TurnedInNotOutlinedIcon from '@mui/icons-material/TurnedInNotOutlined';
 import InsertEmoticonOutlinedIcon from '@mui/icons-material/InsertEmoticonOutlined';
 import { Bookmark, Heart, MessageCircle, Send } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
+import { toast } from 'react-toastify';
 
 
 function postCreatedAt(date) {
@@ -34,7 +35,7 @@ function postCreatedAt(date) {
     return seconds + 's';
 }
 
-const PostCard = ({ post, createLike, deletePost }) => {
+const PostCard = ({ post, userProfile, createLike, createSaved, deletePost }) => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState(null);
@@ -60,6 +61,32 @@ const PostCard = ({ post, createLike, deletePost }) => {
         }
     };
 
+    const [animate, setAnimate] = useState(false);
+
+    const handleDoubleClick = () => {
+        handleLike();
+        setAnimate(true);
+        // Remove animation after it finishes
+        setTimeout(() => setAnimate(false), 800);
+    };
+
+    const [saved, setSaved] = useState(userProfile.saved || []);
+    const [isSaved, setIsSaved] = useState(Boolean(userProfile.saved?.some(item => item === post._id)));
+    console.log('saved', userProfile.saved)
+    console.log('BooL', userProfile.saved?.some(item => item === post._id))
+    console.log('post', post.caption)
+    const handleCreateSaved = async () => {
+        await createSaved(post._id);
+        if (saved.some(item => item === post._id)) {
+            setSaved(saved.filter(item => item !== post._id))
+            setIsSaved(false)
+        } else {
+            setSaved([...saved, post._id])
+            setIsSaved(true)
+        }
+        toast(`Post ${!isSaved ? 'saved' : 'unsaved'}`);
+    }
+
     return (
         <Box sx={{ marginTop: 3, paddingBottom: 1.5, borderBottom: '1px solid rgb(36, 36, 36)' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 1.2 }}>
@@ -84,9 +111,14 @@ const PostCard = ({ post, createLike, deletePost }) => {
                 </IconButton>
             </Box>
             <Box
-                // onDoubleClick={handleLike} 
-                sx={{ cursor: 'pointer', borderRadius: '5px', marginTop: 1 }}>
+                onDoubleClick={handleDoubleClick}
+                sx={{ width: '100%', cursor: 'pointer', borderRadius: '5px', marginTop: 1, position: 'relative' }}>
                 <img src={post.image} alt="" style={{ width: '100%', minHeight: '50%', height: '600px', objectFit: 'cover', borderRadius: '5px', border: '1px solid rgb(70, 70, 70)', }} />
+                <Heart fill='red' stroke='red' size={100} style={{
+                    position: 'absolute', top: '40%', left: '40%', opacity: 0,
+                    transition: '0.3s opacity ease-in',
+                    opacity: animate ? 1 : 0,
+                }} />
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -103,8 +135,8 @@ const PostCard = ({ post, createLike, deletePost }) => {
                         <Send />
                     </IconButton>
                 </Box>
-                <IconButton sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
-                    <Bookmark />
+                <IconButton onClick={handleCreateSaved} sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
+                    <Bookmark fill={isSaved ? 'white' : 'transparent'} />
                 </IconButton>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

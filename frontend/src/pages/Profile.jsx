@@ -1,5 +1,5 @@
 import { Avatar, Box, Button, Container, Grid, Icon, Tab, Tabs, Typography } from '@mui/material'
-import { Bookmark, Grid3x3, Heart, ImageDown, LayoutList, MessageCircle, PhoneIcon, TableProperties } from 'lucide-react'
+import { Bookmark, CircleAlert, Grid3x3, Heart, ImageDown, LayoutList, MessageCircle, PhoneIcon, TableProperties } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import { useParams } from 'react-router-dom';
@@ -10,8 +10,10 @@ const Profile = () => {
     const { userId } = useParams();
     const [user, setUser] = useState({});
     const [myPosts, setMyPosts] = useState([]);
+    // const [savedPostIds, setSavedPostIds] = useState([]);
+    const [savedPosts, setSavedPosts] = useState([]);
 
-    const images = ['/public/images/post-image.jpg', '/public/images/bg-img.jpeg', '/public/images/junvu-img.jpg', '/public/images/photography-img.jpeg']
+    // const images = ['/public/images/post-image.jpg', '/public/images/bg-img.jpeg', '/public/images/junvu-img.jpg', '/public/images/photography-img.jpeg']
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -30,7 +32,8 @@ const Profile = () => {
             });
             const data = await res.json();
             setUser(data)
-            console.log("Data", data)
+            console.log("User Data", data)
+            return data;
             // setLoading(false)
         } catch (err) {
             console.error("Error:", err.message)
@@ -38,7 +41,7 @@ const Profile = () => {
         }
     }
 
-    const getMyPosts = async () => {
+    const getMyPosts = async (savedIds) => {
         try {
             // setLoading(true)
             const token = localStorage.getItem("token");
@@ -52,7 +55,10 @@ const Profile = () => {
             const data = await res.json();
             const posts = data.filter((data) => data.author._id === userId);
             setMyPosts(posts);
-            console.log("Data", data)
+            console.log("My Posts Data", data)
+            const savedPost = data.filter(item => savedIds.includes(item._id))
+            console.log('saved posts', savedPost)
+            setSavedPosts(savedPost);
             // setLoading(false)
         } catch (err) {
             console.error("Error:", err.message)
@@ -61,8 +67,12 @@ const Profile = () => {
     }
 
     useEffect(() => {
-        getUserProfile();
-        getMyPosts();
+        const fetchData = async () => {
+            const profile = await getUserProfile();   // wait until finished
+            await getMyPosts(profile.saved);       // then run this
+        };
+
+        fetchData();
     }, [userId]);
 
     return (
@@ -176,16 +186,55 @@ const Profile = () => {
                                         <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>20</Typography>
                                     </Box>
                                 </Box>
-                                <img src={post.image} alt="" style={{ width: '100%', height: '100%', minHeight: '400px', objectFit: 'cover' }} />
+                                <img src={post.image} alt="" style={{ width: '100%', minHeight: '100%', height: '400px', objectFit: 'cover' }} />
                             </Grid>))}
                     </Grid>
                 </Box>
             </CustomTabPanel>
             <CustomTabPanel value={value} index={1}>
-                Saved
+                <Box>
+                    <Grid container spacing={0.3} sx={{ height: '400px' }}>
+                        {savedPosts.map((post, index) => (
+                            <Grid size={4} key={index} sx={{ position: 'relative' }} >
+                                <Box className='overlay'
+                                    sx={{
+                                        position: 'absolute',
+                                        width: '100%',
+                                        height: '100%',
+                                        minHeight: '400px',
+                                        backgroundColor: 'rgba(0, 0, 0, 0.78)',
+                                        opacity: 0,
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        gap: 3.5,
+                                        transition: '0.3s opacity ease', cursor: 'pointer',
+                                        '&:hover': {
+                                            opacity: 1
+                                        }
+                                    }}
+                                >
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.7 }}>
+                                        <Heart strokeWidth={2.5} size={30} />
+                                        <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>20</Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.7 }}>
+                                        <MessageCircle strokeWidth={2.5} size={27} />
+                                        <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>20</Typography>
+                                    </Box>
+                                </Box>
+                                <img src={post.image} alt="" style={{ width: '100%', minHeight: '100%', height: '400px', objectFit: 'cover' }} />
+                            </Grid>))}
+                    </Grid>
+                </Box>
             </CustomTabPanel>
             <CustomTabPanel value={value} index={2}>
-                Tagged
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, justifyContent: 'center', alignItems: 'center', paddingTop: 8 }}>
+                    <CircleAlert strokeWidth={2.75} size={35} />
+                    <Typography variant='h6'>
+                        Tagged Unavailable
+                    </Typography>
+                </Box>
             </CustomTabPanel>
         </Container >
     )
