@@ -7,12 +7,12 @@ import Home from './pages/Home';
 import SignUp from './pages/SignUp';
 import LeftColumn from './components/LeftColumn';
 import Profile from './pages/Profile';
-import { Search } from 'lucide-react';
 import Users from './pages/Users';
 import { useAuth } from './context/useAuth';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CreatePost from './pages/CreatePost';
+import Search from './pages/Search';
 
 const AdminRoute = ({ children }) => {
   const { user } = useAuth();
