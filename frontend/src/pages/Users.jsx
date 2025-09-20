@@ -52,8 +52,8 @@ const Users = () => {
                     <>
                         {Array.from({ length: 3 }).map(() => (
                             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', paddingY: 1.5 }}>
-                                <Skeleton variant='circular' height={40} width={40} sx={{ backgroundColor: 'rgb(108, 108, 108)' }} />
-                                <Skeleton variant='rounded' height={60} width={'100%'} sx={{ backgroundColor: 'rgb(108, 108, 108)' }} />
+                                <Skeleton variant='circular' height={40} width={40} sx={{ backgroundColor: 'var(--loading-color)' }} />
+                                <Skeleton variant='rounded' height={60} width={'100%'} sx={{ backgroundColor: 'var(--loading-color)' }} />
                             </Box>
                         ))}
                     </>

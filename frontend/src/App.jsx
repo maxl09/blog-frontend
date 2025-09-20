@@ -13,6 +13,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CreatePost from './pages/CreatePost';
 import Search from './pages/Search';
+import CommentDialog from './pages/Post';
+import Post from './pages/Post';
 
 const AdminRoute = ({ children }) => {
   const { user } = useAuth();
@@ -35,6 +37,7 @@ function App() {
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/search" element={<Search />} />
+            <Route path='/post/:postId' element={<Post />} />
             <Route path="/posts/create" element={<CreatePost />} />
             <Route path="/user/:userId" element={<Profile />} />
           </Route>

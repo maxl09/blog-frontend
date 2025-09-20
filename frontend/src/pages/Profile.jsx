@@ -1,17 +1,21 @@
-import { Avatar, Box, Button, Container, Grid, Icon, Tab, Tabs, Typography } from '@mui/material'
-import { Bookmark, CircleAlert, Grid3x3, Heart, ImageDown, LayoutList, MessageCircle, PhoneIcon, TableProperties } from 'lucide-react'
+import { Avatar, Box, Button, Container, Grid, Icon, Skeleton, Tab, Tabs, Typography } from '@mui/material'
+import { Bookmark, CircleAlert, Grid3x3, Heart, ImageDown, LayoutList, MessageCircle, PhoneIcon, TableProperties, TriangleAlert } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import { useParams } from 'react-router-dom';
+import { useAuth } from '../context/useAuth';
 
 const Profile = () => {
 
     const [value, setValue] = useState(0);
     const { userId } = useParams();
-    const [user, setUser] = useState({});
+    const { user } = useAuth();
+    const currentUser = user;
+    const [userProfile, setUserProfile] = useState({});
     const [myPosts, setMyPosts] = useState([]);
     // const [savedPostIds, setSavedPostIds] = useState([]);
     const [savedPosts, setSavedPosts] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     // const images = ['/public/images/post-image.jpg', '/public/images/bg-img.jpeg', '/public/images/junvu-img.jpg', '/public/images/photography-img.jpeg']
 
@@ -21,7 +25,7 @@ const Profile = () => {
 
     const getUserProfile = async () => {
         try {
-            // setLoading(true)
+            setLoading(true)
             const token = localStorage.getItem("token");
             const res = await fetch(`${import.meta.env.VITE_API_URL}/user/${userId}`, {
                 method: "GET",
@@ -31,13 +35,15 @@ const Profile = () => {
                 },
             });
             const data = await res.json();
-            setUser(data)
+            setUserProfile(data)
             console.log("User Data", data)
             return data;
             // setLoading(false)
         } catch (err) {
             console.error("Error:", err.message)
             console.error('Something went wrong')
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -82,9 +88,12 @@ const Profile = () => {
             <Box sx={{ display: 'flex' }}>
                 <Avatar sx={{ width: '150px', height: '150px' }} />
                 <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginLeft: 10, width: '100%' }}>
-                    <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         {/* <Typography variant='h6'>User ID: {userId}</Typography> */}
-                        <Typography variant='h6'>{user?.username}</Typography>
+                        {loading
+                            ? <Skeleton width={'100px'} height={'30px'} sx={{ backgroundColor: 'var(--loading-color)' }} />
+                            : <Typography variant='h6'>{userProfile.username}</Typography>
+                        }
                         <Button sx={{
                             color: 'white',
                             fontWeight: 700,
@@ -96,10 +105,13 @@ const Profile = () => {
                         }}>Edit profile</Button>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '50%' }}>
-                        <Typography sx={{ display: 'flex', gap: '5px', color: 'rgba(168, 168, 168, 1)' }}>
-                            <span style={{
-                                fontWeight: 700, color: 'white'
-                            }}>{myPosts.length}</span>
+                        <Typography sx={{ display: 'flex', gap: '5px', alignItems: 'center', color: 'rgba(168, 168, 168, 1)' }}>
+                            {loading
+                                ? <Skeleton width={'10px'} height={'32px'} sx={{ backgroundColor: 'var(--loading-color)' }} />
+                                : <span style={{
+                                    fontWeight: 700, color: 'white'
+                                }}>{myPosts.length}</span>}
+
                             {myPosts.length > 1 ? 'posts' : 'post'}
                         </Typography>
                         <Typography sx={{ display: 'flex', gap: '5px', color: 'rgba(168, 168, 168, 1)' }}>
@@ -115,9 +127,11 @@ const Profile = () => {
                             following
                         </Typography>
                     </Box>
-                    <Box sx={{ paddingBottom: user.bio ? 0 : 5 }}>
-                        <Typography sx={{ fontWeight: 700, textTransform: 'capitalize' }}>{user?.name}</Typography>
-                        <Typography>{user?.bio}</Typography>
+                    <Box sx={{ paddingBottom: userProfile.bio ? 0 : 5 }}>
+                        <Typography sx={{ fontWeight: 700, textTransform: 'capitalize' }}>{userProfile?.name}</Typography>
+                        {loading
+                            ? <Skeleton width={'100px'} height={'30px'} sx={{ backgroundColor: 'var(--loading-color)' }} />
+                            : <Typography>{userProfile?.bio}</Typography>}
                     </Box>
                 </Box>
             </Box>
@@ -193,39 +207,48 @@ const Profile = () => {
             </CustomTabPanel>
             <CustomTabPanel value={value} index={1}>
                 <Box>
-                    <Grid container spacing={0.3} sx={{ height: '400px' }}>
-                        {savedPosts.map((post, index) => (
-                            <Grid size={4} key={index} sx={{ position: 'relative' }} >
-                                <Box className='overlay'
-                                    sx={{
-                                        position: 'absolute',
-                                        width: '100%',
-                                        height: '100%',
-                                        minHeight: '400px',
-                                        backgroundColor: 'rgba(0, 0, 0, 0.78)',
-                                        opacity: 0,
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        gap: 3.5,
-                                        transition: '0.3s opacity ease', cursor: 'pointer',
-                                        '&:hover': {
-                                            opacity: 1
-                                        }
-                                    }}
-                                >
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.7 }}>
-                                        <Heart strokeWidth={2.5} size={30} />
-                                        <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>20</Typography>
+                    {userId !== currentUser.id
+                        ? <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, justifyContent: 'center', alignItems: 'center', paddingTop: 8 }}>
+                            <TriangleAlert strokeWidth={2.75} size={35} />
+                            <Typography variant='h6'>
+                                Their saved posts are not accessible!
+                            </Typography>
+                        </Box>
+                        :
+                        <Grid container spacing={0.3} sx={{ height: '400px' }}>
+                            {savedPosts.map((post, index) => (
+                                <Grid size={4} key={index} sx={{ position: 'relative' }} >
+                                    <Box className='overlay'
+                                        sx={{
+                                            position: 'absolute',
+                                            width: '100%',
+                                            height: '100%',
+                                            minHeight: '400px',
+                                            backgroundColor: 'rgba(0, 0, 0, 0.78)',
+                                            opacity: 0,
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            gap: 3.5,
+                                            transition: '0.3s opacity ease', cursor: 'pointer',
+                                            '&:hover': {
+                                                opacity: 1
+                                            }
+                                        }}
+                                    >
+                                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.7 }}>
+                                            <Heart strokeWidth={2.5} size={30} />
+                                            <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>20</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.7 }}>
+                                            <MessageCircle strokeWidth={2.5} size={27} />
+                                            <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>20</Typography>
+                                        </Box>
                                     </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.7 }}>
-                                        <MessageCircle strokeWidth={2.5} size={27} />
-                                        <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>20</Typography>
-                                    </Box>
-                                </Box>
-                                <img src={post.image} alt="" style={{ width: '100%', minHeight: '100%', height: '400px', objectFit: 'cover' }} />
-                            </Grid>))}
-                    </Grid>
+                                    <img src={post.image} alt="" style={{ width: '100%', minHeight: '100%', height: '400px', objectFit: 'cover' }} />
+                                </Grid>))}
+                            { }
+                        </Grid>}
                 </Box>
             </CustomTabPanel>
             <CustomTabPanel value={value} index={2}>

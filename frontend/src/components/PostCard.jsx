@@ -2,42 +2,19 @@ import { Avatar, Box, Button, Container, IconButton, InputAdornment, Menu, MenuI
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
-import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
-import MapsUgcOutlinedIcon from '@mui/icons-material/MapsUgcOutlined';
-import TurnedInNotOutlinedIcon from '@mui/icons-material/TurnedInNotOutlined';
 import InsertEmoticonOutlinedIcon from '@mui/icons-material/InsertEmoticonOutlined';
-import { Bookmark, Heart, MessageCircle, Send } from 'lucide-react';
+import { Bookmark, Heart, MessageCircle, Send, SendHorizontal } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
 import { toast } from 'react-toastify';
+import Comment from '../pages/Post';
+import { createCommentMutation } from '../context/query';
+import { timeFormatShort } from '../utils/date-utils';
 
-
-function postCreatedAt(date) {
-    const now = new Date();
-    const postDate = new Date(date);
-    const diff = now - postDate;
-
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const weeks = Math.floor(days / 7);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(days / 365);
-
-    if (years > 0) return years + 'y';
-    if (months > 0) return months + 'm';
-    if (weeks > 0) return weeks + 'w';
-    if (days > 0) return days + 'd';
-    if (hours > 0) return hours + 'h';
-    if (minutes > 0) return minutes + 'm';
-    return seconds + 's';
-}
-
-const PostCard = ({ post, userProfile, createLike, createSaved, deletePost }) => {
+const PostCard = ({ post, userProfile, createLike, createSaved, createComment, deletePost }) => {
     const { user } = useAuth();
     const navigate = useNavigate();
+
+    // Open menu to delete post
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleOpenThreeDots = (event) => {
@@ -47,6 +24,7 @@ const PostCard = ({ post, userProfile, createLike, createSaved, deletePost }) =>
         setAnchorEl(null)
     }
 
+    // Create like
     const [likes, setLikes] = useState(post.likes || []);
     const [isLiked, setIsLiked] = useState(Boolean(post.likes.some(like => like === user.id)));
 
@@ -61,20 +39,19 @@ const PostCard = ({ post, userProfile, createLike, createSaved, deletePost }) =>
         }
     };
 
+    // Double click to like/unlike post
     const [animate, setAnimate] = useState(false);
 
     const handleDoubleClick = () => {
         handleLike();
         setAnimate(true);
-        // Remove animation after it finishes
         setTimeout(() => setAnimate(false), 800);
     };
 
+    // Create save post functionality
     const [saved, setSaved] = useState(userProfile.saved || []);
     const [isSaved, setIsSaved] = useState(Boolean(userProfile.saved?.some(item => item === post._id)));
-    console.log('saved', userProfile.saved)
-    console.log('BooL', userProfile.saved?.some(item => item === post._id))
-    console.log('post', post.caption)
+
     const handleCreateSaved = async () => {
         await createSaved(post._id);
         if (saved.some(item => item === post._id)) {
@@ -87,6 +64,35 @@ const PostCard = ({ post, userProfile, createLike, createSaved, deletePost }) =>
         toast(`Post ${!isSaved ? 'saved' : 'unsaved'}`);
     }
 
+    // console.log('User Profile: ', userProfile)
+
+    // Create comment
+    const [commentValue, setCommentValue] = useState('');
+    const [postComments, setPostComments] = useState(post.comments)
+
+    const handleCommentChange = (e) => {
+        setCommentValue(e.target.value)
+    }
+
+    const handleCreateComment = async () => {
+        if (commentValue.trim().length !== 0) {
+            try {
+                await createComment(commentValue, post._id)
+                // console.log('comment', commentValue)
+                // console.log('postId', post._id)
+                setPostComments([...post.comments, post._id])
+                setCommentValue('');
+            } catch (error) {
+                console.log('Error creating comment: ', error)
+            }
+
+        }
+    }
+
+    // useEffect(() => {
+    //     setPostComments([...post.comments])
+    // }, [post.comments])
+
     return (
         <Box sx={{ marginTop: 3, paddingBottom: 1.5, borderBottom: '1px solid rgb(36, 36, 36)' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 1.2 }}>
@@ -94,7 +100,7 @@ const PostCard = ({ post, userProfile, createLike, createSaved, deletePost }) =>
                     <Avatar sx={{ cursor: 'pointer' }} />
                     <Typography onClick={() => navigate(`/user/${post.author._id}`)} variant='body1' sx={{ fontWeight: 700, marginLeft: 1, cursor: 'pointer' }}>{post.author.username}</Typography>
                     <Typography variant='body1'>•</Typography>
-                    <Typography variant='body1' sx={{ color: 'rgb(183, 183, 183)' }}>{postCreatedAt(post.createdAt)}</Typography>
+                    <Typography variant='body1' sx={{ color: 'rgb(183, 183, 183)' }}>{timeFormatShort(post?.createdAt)}</Typography>
                 </Box>
                 <IconButton sx={{
                     color: 'white',
@@ -128,7 +134,9 @@ const PostCard = ({ post, userProfile, createLike, createSaved, deletePost }) =>
                             stroke={isLiked ? 'red' : 'white'}
                         />
                     </IconButton>
-                    <IconButton sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
+                    <IconButton
+                        onClick={() => navigate(`/post/${post._id}`)}
+                        sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
                         <MessageCircle size={21} />
                     </IconButton>
                     <IconButton sx={{ color: 'white', '&:hover': { color: 'rgb(212, 212, 212)' } }}>
@@ -143,11 +151,29 @@ const PostCard = ({ post, userProfile, createLike, createSaved, deletePost }) =>
                 <Box>
                     <Typography variant='body1' sx={{ fontWeight: 700, marginY: 0.5 }}>{likes.length < 2 ? `${likes.length} like` : `${likes.length} likes`}</Typography>
                     <Typography variant='body1'><span style={{ fontWeight: 700, cursor: 'pointer' }}>{post.author.username}</span><span style={{ marginLeft: '5px' }}>{post.caption}</span></Typography>
+                    {postComments.length > 0 &&
+                        <Typography
+                            onClick={() => navigate(`/post/${post._id}`)}
+                            sx={{
+                                marginTop: 0.5,
+                                color: 'var(--loading-color)', cursor: 'pointer', '&:hover': {
+                                    color: 'rgba(141, 141, 141, 0.61)'
+                                }
+                            }}>View all {postComments.length} comments</Typography>
+                    }
                 </Box>
             </Box>
             {/* <Typography sx={{ color: 'rgb(127, 127, 127)', marginTop: 1, cursor: 'pointer' }}>View all 5 comments</Typography> */}
             <TextField
                 placeholder='Add a comment...'
+                value={commentValue}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault(); // avoid newline
+                        handleCreateComment();
+                    }
+                }}
+                onChange={handleCommentChange}
                 sx={{
                     width: '100%',
                     '& .MuiOutlinedInput-root': {
@@ -173,8 +199,9 @@ const PostCard = ({ post, userProfile, createLike, createSaved, deletePost }) =>
                     endAdornment: (
                         <InputAdornment position="start">
                             <IconButton
+                                onClick={handleCreateComment}
                                 edge="start">
-                                <InsertEmoticonOutlinedIcon sx={{ color: 'rgb(127, 127, 127)', '&:hover': { color: 'rgb(89, 89, 89)' } }} />
+                                <SendHorizontal strokeWidth={2} stroke='rgb(129, 129, 129)' />
                             </IconButton>
                         </InputAdornment>
                     ),
