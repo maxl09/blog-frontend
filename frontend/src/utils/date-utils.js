@@ -17,7 +17,8 @@ export function timeFormatShort(date) {
     if (days > 0) return days + 'd';
     if (hours > 0) return hours + 'h';
     if (minutes > 0) return minutes + 'm';
-    return seconds + 's';
+    if (seconds > 0) return seconds + 's';
+    return '0s';
 }
 
 export function timeFormatLong(date) {
