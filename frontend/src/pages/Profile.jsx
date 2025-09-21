@@ -1,17 +1,20 @@
 import { Avatar, Box, Button, Container, Grid, Icon, Skeleton, Tab, Tabs, Typography } from '@mui/material'
-import { Bookmark, CircleAlert, Grid3x3, Heart, ImageDown, LayoutList, MessageCircle, PhoneIcon, TableProperties, TriangleAlert } from 'lucide-react'
+import { Bookmark, CircleAlert, Grid3x3, Heart, ImageDown, ImageUp, MessageCircle, TriangleAlert } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import AcUnitIcon from '@mui/icons-material/AcUnit';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
+import { updateProfilePicMutation } from '../context/query';
+import imageCompression from 'browser-image-compression';
 
 const Profile = () => {
-
+    const navigate = useNavigate();
     const [value, setValue] = useState(0);
     const { userId } = useParams();
     const { user } = useAuth();
     const currentUser = user;
     const [userProfile, setUserProfile] = useState({});
+    const [image, setImage] = useState(null)
+    const [preview, setPreview] = useState('')
     const [myPosts, setMyPosts] = useState([]);
     // const [savedPostIds, setSavedPostIds] = useState([]);
     const [savedPosts, setSavedPosts] = useState([]);
@@ -72,21 +75,98 @@ const Profile = () => {
         }
     }
 
+    const handleProfilePicChange = async () => {
+        const file = event.target.files[0]
+        if (file) {
+            const options = { maxSizeMB: 1, maxWidthOrHeight: 1024 };
+            const compressedFile = await imageCompression(file, options);
+            setImage(compressedFile)
+            setPreview(URL.createObjectURL(compressedFile))
+        }
+    }
+
+    const handleProfilePicSubmit = async (image, userId) => {
+        await updateProfilePicMutation(image, userId)
+    }
+
     useEffect(() => {
         const fetchData = async () => {
             const profile = await getUserProfile();   // wait until finished
             await getMyPosts(profile.saved);       // then run this
         };
-
         fetchData();
     }, [userId]);
 
     return (
         <Container disableGutters maxWidth='md' sx={{
             paddingY: 7,
+            width: '100%'
         }}>
             <Box sx={{ display: 'flex' }}>
-                <Avatar sx={{ width: '150px', height: '150px' }} />
+                <Box sx={{ textAlign: 'center', position: 'relative' }}>
+                    <label htmlFor='upload-image'>
+                        <Box component='div' sx={{ cursor: 'pointer', position: 'relative', "&:hover .profilePicOverlay": { opacity: 1 } }}>
+                            {preview
+                                ? <img src={preview} style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '50%' }} />
+                                : userProfile.profilePic ? <img src={userProfile.profilePic} style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '50%' }} />
+                                    : <Avatar sx={{ width: '150px', height: '150px' }} />
+                            }
+                            {userId === currentUser.id
+                                && <Box className="profilePicOverlay"
+                                    sx={{
+                                        position: 'absolute',
+                                        top: '0%',
+                                        left: '0',
+                                        width: '150px',
+                                        height: '150px',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        zIndex: 99,
+                                        background: 'rgba(22, 22, 22, 0.7)',
+                                        opacity: 0
+                                    }}>
+                                    <Box>
+                                        <ImageUp strokeWidth={2} />
+                                        <Typography variant='body2' sx={{ fontWeight: 700 }}>Change Photo</Typography>
+                                    </Box>
+                                </Box>}
+                        </Box>
+                    </label>
+                    {userId === currentUser.id &&
+                        <input
+                            accept='image/*'
+                            id='upload-image'
+                            type="file"
+                            onChange={handleProfilePicChange}
+                            style={{ display: 'none' }}
+                        />}
+                    {preview && <Button
+                        onClick={() => handleProfilePicSubmit(image, userId)}
+                        sx={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: '8%',
+                            marginTop: 2,
+                            fontWeight: 700,
+                            fontSize: '14px',
+                            textTransform: 'none',
+                            textWrap: 'nowrap',
+                            background: 'rgba(74, 93, 249,1)',
+                            color: 'white',
+                            borderRadius: '10px',
+                            width: 'fit-content',
+                            paddingX: 2, paddingY: 0.5,
+                            '&:hover': {
+                                background: 'rgba(74, 94, 249, 0.8)'
+                            }
+                        }}>
+                        Save changes
+                    </Button>}
+
+                </Box>
+
                 <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginLeft: 10, width: '100%' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         {/* <Typography variant='h6'>User ID: {userId}</Typography> */}
@@ -94,7 +174,7 @@ const Profile = () => {
                             ? <Skeleton width={'100px'} height={'30px'} sx={{ backgroundColor: 'var(--loading-color)' }} />
                             : <Typography variant='h6'>{userProfile.username}</Typography>
                         }
-                        <Button sx={{
+                        {(currentUser.id === userId) && <Button sx={{
                             color: 'white',
                             fontWeight: 700,
                             borderRadius: '7px',
@@ -102,7 +182,8 @@ const Profile = () => {
                             textTransform: 'none',
                             background: 'rgba(43, 48, 54, .8)',
                             '&:hover': { background: 'rgba(54, 60, 68, 1)' }
-                        }}>Edit profile</Button>
+                        }}>Edit profile</Button>}
+
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '50%' }}>
                         <Typography sx={{ display: 'flex', gap: '5px', alignItems: 'center', color: 'rgba(168, 168, 168, 1)' }}>
@@ -135,7 +216,7 @@ const Profile = () => {
                     </Box>
                 </Box>
             </Box>
-            <Box sx={{ marginTop: 6, borderBottom: '1px solid #3A3B3C', width: '100%' }}>
+            <Box sx={{ marginTop: 10, borderBottom: '1px solid #3A3B3C', width: '100%' }}>
                 <Tabs value={value} onChange={handleChange} sx={{
                     width: '100%',
                     '& .MuiTabs-list': { display: 'flex', justifyContent: 'center', gap: '10%' },
@@ -174,6 +255,7 @@ const Profile = () => {
                         {myPosts.map((post, index) => (
                             <Grid size={4} key={index} sx={{ position: 'relative' }} >
                                 <Box className='overlay'
+                                    onClick={() => navigate(`/post/${post._id}`)}
                                     sx={{
                                         position: 'absolute',
                                         width: '100%',
@@ -193,11 +275,11 @@ const Profile = () => {
                                 >
                                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.7 }}>
                                         <Heart strokeWidth={2.5} size={30} />
-                                        <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>20</Typography>
+                                        <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>{post.likes.length}</Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.7 }}>
                                         <MessageCircle strokeWidth={2.5} size={27} />
-                                        <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>20</Typography>
+                                        <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>{post.comments.length}</Typography>
                                     </Box>
                                 </Box>
                                 <img src={post.image} alt="" style={{ width: '100%', minHeight: '100%', height: '400px', objectFit: 'cover' }} />
@@ -219,6 +301,7 @@ const Profile = () => {
                             {savedPosts.map((post, index) => (
                                 <Grid size={4} key={index} sx={{ position: 'relative' }} >
                                     <Box className='overlay'
+                                        onClick={() => navigate(`/post/${post._id}`)}
                                         sx={{
                                             position: 'absolute',
                                             width: '100%',
@@ -238,11 +321,11 @@ const Profile = () => {
                                     >
                                         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.7 }}>
                                             <Heart strokeWidth={2.5} size={30} />
-                                            <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>20</Typography>
+                                            <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>{post.likes.length}</Typography>
                                         </Box>
                                         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.7 }}>
                                             <MessageCircle strokeWidth={2.5} size={27} />
-                                            <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>20</Typography>
+                                            <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>{post.comments.length}</Typography>
                                         </Box>
                                     </Box>
                                     <img src={post.image} alt="" style={{ width: '100%', minHeight: '100%', height: '400px', objectFit: 'cover' }} />

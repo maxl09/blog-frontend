@@ -1,15 +1,7 @@
-import { Avatar, Box, Button, Container, IconButton, InputAdornment, TextField, Typography } from '@mui/material'
-import React, { use, useEffect, useState } from 'react'
-import { useActionData, useNavigate } from 'react-router-dom'
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
-import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
-import MapsUgcOutlinedIcon from '@mui/icons-material/MapsUgcOutlined';
-import TurnedInNotOutlinedIcon from '@mui/icons-material/TurnedInNotOutlined';
-import InsertEmoticonOutlinedIcon from '@mui/icons-material/InsertEmoticonOutlined';
+import { Box, CircularProgress, Container } from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import PostCard from '../components/PostCard';
-import { toast } from 'react-toastify';
 import { useAuth } from '../context/useAuth';
 import { getPostsQuery, deletePostMutation, getUserProfileQuery, createLikeMutation, createSavedMutation, createCommentMutation } from '../context/query';
 
@@ -36,13 +28,13 @@ const Home = () => {
     }
 
     const createLike = async (postId) => {
-        await createLikeMutation();
-        getPosts();
+        await createLikeMutation(postId);
+        // getPosts();
     }
 
     const createSaved = async (postId) => {
         await createSavedMutation(postId);
-        getPosts();
+        // getPosts();
     }
 
     const createComment = async (text, postId) => {
@@ -58,8 +50,9 @@ const Home = () => {
         <>
             <Container disableGutters maxWidth='sm'
                 sx={{
-                    paddingY: 3,
-                    paddingX: 10,
+                    paddingTop: 3,
+                    paddingBottom: 10,
+                    paddingX: { xs: 3, sm: 10 },
                 }}>
                 {posts?.length === 0
                     ? <Box sx={{
@@ -71,7 +64,8 @@ const Home = () => {
                         alignItems: 'center',
                         gap: 4
                     }}>
-                        <Typography variant='h5'>No posts</Typography>
+                        {/* <Typography variant='h5'>No posts</Typography> */}
+                        <CircularProgress sx={{ color: 'rgb(195, 195, 195)' }} />
                     </Box>
                     : posts?.map((post) => (
                         <PostCard

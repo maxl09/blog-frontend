@@ -60,7 +60,11 @@ const Login = () => {
                 localStorage.setItem("user", JSON.stringify(data.user));
 
                 // Redirect to frontend home page (React SPA)
-                toast(`Welcome back, ${data.user.name}!`)
+                const capitalized = data.user.name
+                    .split(" ")
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(" ");
+                toast(`Welcome back, ${capitalized}!`)
                 navigate('/')
                 // window.location.href = "/";
             } else {

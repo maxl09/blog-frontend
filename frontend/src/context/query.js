@@ -160,4 +160,30 @@ const deleteCommentMutation = async (postId, commentId) => {
     }
 }
 
-export { getPostsQuery, deletePostMutation, createLikeMutation, createSavedMutation, getUserProfileQuery, createCommentMutation, deleteCommentMutation };
+const updateProfilePicMutation = async (image, userId) => {
+    try {
+        const token = localStorage.getItem("token");
+        const formData = new FormData();
+        if (image) formData.append('image', image);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/user/${userId}/profilePic`, {
+            method: "POST",
+            headers: {
+                // "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            toast.error('Cannot update this image')
+            console.log('data', data)
+        } else {
+            window.location.reload();
+            // toast('Profile picture updated successfully!');
+        }
+    } catch (error) {
+        console.error("Error updating profile picture:", error.message)
+    }
+}
+
+export { getPostsQuery, deletePostMutation, createLikeMutation, createSavedMutation, getUserProfileQuery, createCommentMutation, deleteCommentMutation, updateProfilePicMutation };

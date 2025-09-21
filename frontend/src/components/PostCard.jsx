@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import Comment from '../pages/Post';
 import { createCommentMutation } from '../context/query';
 import { timeFormatShort } from '../utils/date-utils';
+import { useIsSmallScreen } from '../utils/media-query';
 
 const PostCard = ({ post, userProfile, createLike, createSaved, createComment, deletePost }) => {
     const { user } = useAuth();
@@ -89,6 +90,8 @@ const PostCard = ({ post, userProfile, createLike, createSaved, createComment, d
         }
     }
 
+    const isSmallScreen = useIsSmallScreen();
+
     // useEffect(() => {
     //     setPostComments([...post.comments])
     // }, [post.comments])
@@ -97,7 +100,10 @@ const PostCard = ({ post, userProfile, createLike, createSaved, createComment, d
         <Box sx={{ marginTop: 3, paddingBottom: 1.5, borderBottom: '1px solid rgb(36, 36, 36)' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 1.2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.7 }}>
-                    <Avatar sx={{ cursor: 'pointer' }} />
+                    {post.author.profilePic ?
+                        <img src={post.author.profilePic} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                        : <Avatar sx={{ cursor: 'pointer' }} />
+                    }
                     <Typography onClick={() => navigate(`/user/${post.author._id}`)} variant='body1' sx={{ fontWeight: 700, marginLeft: 1, cursor: 'pointer' }}>{post.author.username}</Typography>
                     <Typography variant='body1'>•</Typography>
                     <Typography variant='body1' sx={{ color: 'rgb(183, 183, 183)' }}>{timeFormatShort(post?.createdAt)}</Typography>
@@ -119,7 +125,7 @@ const PostCard = ({ post, userProfile, createLike, createSaved, createComment, d
             <Box
                 onDoubleClick={handleDoubleClick}
                 sx={{ width: '100%', cursor: 'pointer', borderRadius: '5px', marginTop: 1, position: 'relative' }}>
-                <img src={post.image} alt="" style={{ width: '100%', minHeight: '50%', height: '600px', objectFit: 'cover', borderRadius: '5px', border: '1px solid rgb(70, 70, 70)', }} />
+                <img src={post.image} alt="" style={{ width: '100%', minHeight: '50%', height: isSmallScreen ? '55vh' : '600px', objectFit: 'cover', borderRadius: '5px', border: '1px solid rgb(70, 70, 70)', }} />
                 <Heart fill='red' stroke='red' size={100} style={{
                     position: 'absolute', top: '40%', left: '40%', opacity: 0,
                     transition: '0.3s opacity ease-in',
@@ -159,7 +165,7 @@ const PostCard = ({ post, userProfile, createLike, createSaved, createComment, d
                                 color: 'var(--loading-color)', cursor: 'pointer', '&:hover': {
                                     color: 'rgba(141, 141, 141, 0.61)'
                                 }
-                            }}>View all {postComments.length} comments</Typography>
+                            }}>View all {postComments.length} {postComments.length > 1 ? 'comments' : 'comment'}</Typography>
                     }
                 </Box>
             </Box>

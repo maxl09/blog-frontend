@@ -59,12 +59,17 @@ const Users = () => {
                     </>
                     :
                     users?.map((user, index) => (
-                        <Box key={user._id} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, paddingY: 1.5, borderBottom: (users.length - 1) !== index ? '1px solid grey' : 'none' }}>
-                            {user.profilePic ? <img src={user.profilePic} /> : <Avatar />}
+                        <Box
+                            onClick={() => navigate(`/user/${user._id}`)}
+                            key={user._id}
+                            sx={{ display: 'flex', alignItems: 'center', gap: 2.5, paddingY: 1.5, borderBottom: (users.length - 1) !== index ? '1px solid grey' : 'none', cursor: 'pointer' }}>
+                            {user.profilePic
+                                ? <img src={user.profilePic} style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
+                                : <Avatar style={{ width: '50px', height: '50px', borderRadius: '50%' }} />}
                             <Box sx={{ flex: 1 }}>
-                                <Typography sx={{ fontSize: '15px' }}>{user.name}</Typography>
-                                <Typography sx={{ fontSize: '13px', color: 'grey' }}>@{user.username}</Typography>
-                                <Typography sx={{ fontSize: '13px', color: 'grey' }}>{user?.posts.length} posts</Typography>
+                                <Typography variant='body1' sx={{ fontWeight: 700 }}>{user.name}</Typography>
+                                <Typography variant='body2' sx={{ color: 'var(--loading-color)' }}>@{user.username}</Typography>
+                                <Typography variant='body2' sx={{ color: 'var(--loading-color)' }}>{user?.posts.length} posts</Typography>
                             </Box>
                             <Button sx={{
                                 // background: 'white',
