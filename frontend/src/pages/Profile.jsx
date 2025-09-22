@@ -43,7 +43,7 @@ const Profile = () => {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true)
-            const profile = await getUserProfileQuery();   // wait until finished
+            const profile = await getUserProfileQuery(userId);   // wait until finished
             setUserProfile(profile)
             setLoading(false)
 

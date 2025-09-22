@@ -93,10 +93,10 @@ const createSavedMutation = async (postId) => {
     }
 }
 
-const getUserProfileQuery = async () => {
+const getUserProfileQuery = async (userId) => {
     try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/user/${user.id}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/user/${userId}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
