@@ -5,6 +5,8 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useAuth } from '../context/useAuth'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import imageCompression from 'browser-image-compression';
+
 
 const CreatePost = () => {
     const { user } = useAuth();
@@ -14,11 +16,13 @@ const CreatePost = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleImageOnChange = (event) => {
+    const handleImageOnChange = async (event) => {
         const file = event.target.files[0]
         if (file) {
-            setImage(file)
-            setPreview(URL.createObjectURL(file))
+            // const options = { maxSizeMB: 1, maxWidthOrHeight: 1024 };
+            const compressedFile = await imageCompression(file, { fileType: 'image/jpeg' });
+            setImage(compressedFile)
+            setPreview(URL.createObjectURL(compressedFile))
         }
     }
 
