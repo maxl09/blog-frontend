@@ -186,4 +186,27 @@ const updateProfilePicMutation = async (image, userId) => {
     }
 }
 
-export { getPostsQuery, deletePostMutation, createLikeMutation, createSavedMutation, getUserProfileQuery, createCommentMutation, deleteCommentMutation, updateProfilePicMutation };
+const createFollowMutation = async (userId) => {
+    try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/user/${userId}/follow`, {
+            method: "PUT",
+            headers: {
+                // "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            // body: JSON.stringify({ currentUserId })
+        });
+        const data = await res.json();
+        console.log("Followed user", data);
+        if (!res.ok) {
+            toast.error("Error follow the user")
+        }
+        return data;
+    } catch (error) {
+        console.error("Error:", error.message)
+        console.error('Something went wrong')
+    }
+}
+
+export { getPostsQuery, deletePostMutation, createLikeMutation, createSavedMutation, getUserProfileQuery, createCommentMutation, deleteCommentMutation, updateProfilePicMutation, createFollowMutation };

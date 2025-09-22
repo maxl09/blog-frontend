@@ -3,8 +3,9 @@ import { Bookmark, CircleAlert, Grid3x3, Heart, ImageDown, ImageUp, MessageCircl
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
-import { updateProfilePicMutation } from '../context/query';
+import { createFollowMutation, getPostsQuery, getUserProfileQuery, updateProfilePicMutation } from '../context/query';
 import imageCompression from 'browser-image-compression';
+import { toast } from 'react-toastify';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -12,68 +13,18 @@ const Profile = () => {
     const { userId } = useParams();
     const { user } = useAuth();
     const currentUser = user;
-    const [userProfile, setUserProfile] = useState({});
+    const [userProfile, setUserProfile] = useState([]);
     const [image, setImage] = useState(null)
     const [preview, setPreview] = useState('')
     const [myPosts, setMyPosts] = useState([]);
-    // const [savedPostIds, setSavedPostIds] = useState([]);
     const [savedPosts, setSavedPosts] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    // const images = ['/public/images/post-image.jpg', '/public/images/bg-img.jpeg', '/public/images/junvu-img.jpg', '/public/images/photography-img.jpeg']
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
-    const getUserProfile = async () => {
-        try {
-            setLoading(true)
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/user/${userId}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            const data = await res.json();
-            setUserProfile(data)
-            console.log("User Data", data)
-            return data;
-            // setLoading(false)
-        } catch (err) {
-            console.error("Error:", err.message)
-            console.error('Something went wrong')
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    const getMyPosts = async (savedIds) => {
-        try {
-            // setLoading(true)
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/posts`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            const data = await res.json();
-            const posts = data.filter((data) => data.author._id === userId);
-            setMyPosts(posts);
-            console.log("My Posts Data", data)
-            const savedPost = data.filter(item => savedIds.includes(item._id))
-            console.log('saved posts', savedPost)
-            setSavedPosts(savedPost);
-            // setLoading(false)
-        } catch (err) {
-            console.error("Error:", err.message)
-            console.error('Something went wrong')
-        }
-    }
 
     const handleProfilePicChange = async () => {
         const file = event.target.files[0]
@@ -91,11 +42,46 @@ const Profile = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const profile = await getUserProfile();   // wait until finished
-            await getMyPosts(profile.saved);       // then run this
+            setLoading(true)
+            const profile = await getUserProfileQuery();   // wait until finished
+            setUserProfile(profile)
+            setLoading(false)
+
+            // Get all posts
+            const posts = await getPostsQuery();
+            // Get only posts owned
+            setMyPosts(posts.filter(post => post.author._id === userId));
+            // Get only posts saved
+            const savedPost = posts.filter(post => profile.saved.includes(post._id))
+            setSavedPosts(savedPost);
         };
         fetchData();
     }, [userId]);
+
+    // Follower & Following
+    const [followers, setFollowers] = useState([]);
+    const [isFollowed, setIsFollowed] = useState(null);
+    const handleFollowSubmit = async () => {
+        try {
+            await createFollowMutation(userId);
+            if (isFollowed) {
+                setFollowers(followers.filter(prev => prev !== userId))
+                setIsFollowed(false)
+                toast('Unfollowed')
+            } else {
+                setFollowers([...followers, userId])
+                setIsFollowed(true)
+                toast('Following')
+            }
+        } catch (error) {
+            console.log('Error creating follow:', error)
+        }
+    }
+
+    useEffect(() => {
+        setFollowers(userProfile.followers)
+        setIsFollowed(Boolean(userProfile.followers?.includes(user.id)))
+    }, [userProfile.followers])
 
     return (
         <Container disableGutters maxWidth='md' sx={{
@@ -164,7 +150,6 @@ const Profile = () => {
                         }}>
                         Save changes
                     </Button>}
-
                 </Box>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginLeft: 10, width: '100%' }}>
@@ -174,15 +159,34 @@ const Profile = () => {
                             ? <Skeleton width={'100px'} height={'30px'} sx={{ backgroundColor: 'var(--loading-color)' }} />
                             : <Typography variant='h6'>{userProfile.username}</Typography>
                         }
-                        {(currentUser.id === userId) && <Button sx={{
-                            color: 'white',
-                            fontWeight: 700,
-                            borderRadius: '7px',
-                            padding: '4px 15px',
-                            textTransform: 'none',
-                            background: 'rgba(43, 48, 54, .8)',
-                            '&:hover': { background: 'rgba(54, 60, 68, 1)' }
-                        }}>Edit profile</Button>}
+                        {(currentUser.id === userId)
+                            && <Button sx={{
+                                color: 'white',
+                                fontWeight: 700,
+                                borderRadius: '7px',
+                                padding: '4px 15px',
+                                textTransform: 'none',
+                                background: 'rgba(43, 48, 54, .8)',
+                                '&:hover': { background: 'rgba(54, 60, 68, 1)' }
+                            }}>Edit profile</Button>}
+                        {(currentUser.id !== userId) && <Button
+                            onClick={handleFollowSubmit}
+                            sx={{
+                                fontWeight: 700,
+                                fontSize: '14px',
+                                textTransform: 'none',
+                                textWrap: 'nowrap',
+                                background: isFollowed ? 'rgb(85, 85, 85)' : 'rgba(74, 93, 249,1)',
+                                color: 'white',
+                                borderRadius: '10px',
+                                width: 'fit-content',
+                                paddingX: 2, paddingY: 0.5,
+                                '&:hover': {
+                                    background: isFollowed ? 'rgba(85, 85, 85, 0.58)' : 'rgba(74, 94, 249, 0.8)'
+                                }
+                            }}>
+                            {isFollowed ? 'Unfollow' : 'Follow'}
+                        </Button>}
 
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '50%' }}>
@@ -198,13 +202,13 @@ const Profile = () => {
                         <Typography sx={{ display: 'flex', gap: '5px', color: 'rgba(168, 168, 168, 1)' }}>
                             <span style={{
                                 fontWeight: 700, color: 'white'
-                            }}></span>
+                            }}>{followers?.length}</span>
                             followers
                         </Typography>
                         <Typography sx={{ display: 'flex', gap: '5px', color: 'rgba(168, 168, 168, 1)' }}>
                             <span style={{
                                 fontWeight: 700, color: 'white'
-                            }}>0</span>
+                            }}>{userProfile?.following?.length}</span>
                             following
                         </Typography>
                     </Box>
