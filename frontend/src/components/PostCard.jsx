@@ -81,7 +81,7 @@ const PostCard = ({ post, userProfile, createLike, createSaved, createComment, d
                 await createComment(commentValue, post._id)
                 // console.log('comment', commentValue)
                 // console.log('postId', post._id)
-                setPostComments([...post.comments, post._id])
+                setPostComments([...postComments, post._id])
                 setCommentValue('');
             } catch (error) {
                 console.log('Error creating comment: ', error)
