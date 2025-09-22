@@ -127,7 +127,8 @@ const CreatePost = () => {
                     </Box>
                     {preview && <Box sx={{ width: '45%', minHeight: '50%', background: '#242526', borderRadius: '0px 0px 25px 0px' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, padding: 2 }}>
-                            <Avatar />
+                            {user.profilePic ? <img src={user.profilePic} alt="" style={{ width: '50px', height: '50px', borderRadius: '50%' }} /> : <Avatar />}
+                            {console.log('profile pic', user)}
                             <Typography sx={{ fontWeight: 600 }}>{user.username}</Typography>
                         </Box>
                         <TextField

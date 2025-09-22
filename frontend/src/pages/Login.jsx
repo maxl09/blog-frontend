@@ -144,7 +144,7 @@ const Login = () => {
                                 },
                             },
                         }}
-                        onChange={(e) => setUsername(e.target.value)} />
+                        onChange={(e) => setUsername(e.target.value.toLowerCase())} />
                     {errors.username && <Typography variant='body2' sx={{ color: 'red', marginBottom: 1 }}>{errors.username}</Typography>}
                     <Typography variant='h7'>Password</Typography>
                     <TextField

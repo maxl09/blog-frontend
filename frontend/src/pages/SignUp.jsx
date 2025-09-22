@@ -115,7 +115,7 @@ const SignUp = () => {
                                 },
                             },
                         }}
-                        onChange={(e) => setUsername(e.target.value)} />
+                        onChange={(e) => setUsername(e.target.value.toLowerCase())} />
                     <Typography variant='h7'>Password</Typography>
                     <TextField
                         type={showPassword ? 'text' : 'password'}
