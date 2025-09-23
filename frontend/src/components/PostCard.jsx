@@ -127,7 +127,7 @@ const PostCard = ({ post, userProfile, createLike, createSaved, createComment, d
                 sx={{ width: '100%', cursor: 'pointer', borderRadius: '5px', marginTop: 1, position: 'relative' }}>
                 <img src={post.image} alt="" style={{ width: '100%', minHeight: '50%', height: isSmallScreen ? '55vh' : '600px', objectFit: 'cover', borderRadius: '5px', border: '1px solid rgb(70, 70, 70)', }} />
                 <Heart fill='red' stroke='red' size={100} style={{
-                    position: 'absolute', top: '40%', left: '40%', opacity: 0,
+                    position: 'absolute', top: '40%', left: '40%',
                     transition: '0.3s opacity ease-in',
                     opacity: animate ? 1 : 0,
                 }} />
