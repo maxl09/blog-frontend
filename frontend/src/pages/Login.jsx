@@ -144,7 +144,12 @@ const Login = () => {
                                 },
                             },
                         }}
-                        onChange={(e) => setUsername(e.target.value.toLowerCase())} />
+                        onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                handleLogin()
+                            }
+                        }} />
                     {errors.username && <Typography variant='body2' sx={{ color: 'red', marginBottom: 1 }}>{errors.username}</Typography>}
                     <Typography variant='h7'>Password</Typography>
                     <TextField
@@ -179,7 +184,13 @@ const Login = () => {
                                 </InputAdornment>
                             ),
                         }}
-                        onChange={(e) => setPassword(e.target.value)} />
+                        onChange={(e) => setPassword(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                handleLogin()
+                            }
+                        }
+                        } />
                     {errors.password && <Typography variant='body2' sx={{ color: 'red', marginBottom: 1 }}>{errors.password}</Typography>}
                     {/* <Typography component='a' href='/' sx={{ textDecoration: 'none', color: 'black', textAlign: 'end', marginTop: 1, '&:hover': { color: 'rgba(63, 63, 63, 0.84)' } }}>Forgot Password?</Typography> */}
                     <Button
