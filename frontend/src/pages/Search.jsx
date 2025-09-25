@@ -98,7 +98,7 @@ const Search = () => {
                         </Typography>
                     </>
                     :
-                    <Box sx={{ height: '70vh', overflowY: 'scroll' }}>
+                    <Box sx={{ height: '70vh', overflowY: 'auto' }}>
                         {value !== '' && filteredUsers.map((user) =>
                             <Box
                                 onClick={() => navigate(`/user/${user._id}`)}
@@ -116,7 +116,9 @@ const Search = () => {
                                         background: 'rgba(75, 75, 75, 0.54)'
                                     }
                                 }}>
-                                <Avatar sx={{ width: '45px', height: '45px' }} />
+                                {user.profilePic
+                                    ? <img src={user.profilePic} style={{ width: '45px', height: '45px', borderRadius: '50%' }} />
+                                    : <Avatar sx={{ width: '45px', height: '45px' }} />}
                                 <Box
                                     sx={{
                                         width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'start', flexDirection: 'column',
