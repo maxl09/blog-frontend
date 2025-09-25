@@ -1,11 +1,12 @@
-import { Avatar, Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Icon, Skeleton, Tab, Tabs, TextField, Typography } from '@mui/material'
-import { Bookmark, CircleAlert, Grid3x3, Heart, ImageDown, ImageUp, MessageCircle, TriangleAlert } from 'lucide-react'
+import { Avatar, Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Icon, IconButton, Skeleton, Tab, Tabs, TextField, Typography, useMediaQuery } from '@mui/material'
+import { ArrowBigLeft, Bookmark, ChevronLeft, CircleAlert, Grid3x3, Heart, ImageDown, ImageUp, MessageCircle, TriangleAlert } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import { createFollowMutation, editProfileMutation, getAllUsersQuery, getPostsQuery, getUserProfileQuery, updateProfilePicMutation } from '../context/query';
 import imageCompression from 'browser-image-compression';
 import { toast } from 'react-toastify';
+import { useIsSmallScreen } from '../utils/media-query';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -19,6 +20,8 @@ const Profile = () => {
     const [myPosts, setMyPosts] = useState([]);
     const [savedPosts, setSavedPosts] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    const isSmallScreen = useIsSmallScreen();
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -153,17 +156,25 @@ const Profile = () => {
 
     return (
         <Container disableGutters maxWidth='md' sx={{
-            paddingY: 7,
+            paddingY: isSmallScreen ? 0 : 7,
             width: '100%'
         }}>
-            <Box sx={{ display: 'flex' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 0.7, borderBottom: '1px solid var(--loading-color)' }}>
+                <IconButton onClick={() => navigate(-1)}>
+                    <ChevronLeft stroke='white' />
+                </IconButton>
+                <Typography sx={{ fontWeight: 700 }}>{userProfile.username}</Typography>
+                <Box sx={{ flexBasis: '40px' }}></Box>
+            </Box>
+            <Box sx={{ display: 'flex', paddingTop: 2, paddingX: isSmallScreen ? 2 : 0 }}>
                 <Box sx={{ textAlign: 'center', position: 'relative' }}>
                     <label htmlFor='upload-image'>
                         <Box component='div' sx={{ cursor: 'pointer', position: 'relative', "&:hover .profilePicOverlay": { opacity: 1 } }}>
                             {preview
-                                ? <img src={preview} style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '50%' }} />
-                                : userProfile.profilePic ? <img src={userProfile.profilePic} style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '50%' }} />
-                                    : <Avatar sx={{ width: '150px', height: '150px' }} />
+                                ? <img src={preview} style={{ width: isSmallScreen ? '100px' : '150px', height: isSmallScreen ? '100px' : '150px', objectFit: 'cover', borderRadius: '50%' }} />
+                                : userProfile.profilePic
+                                    ? <img src={userProfile.profilePic} style={{ width: isSmallScreen ? '100px' : '150px', height: isSmallScreen ? '100px' : '150px', objectFit: 'cover', borderRadius: '50%' }} />
+                                    : <Avatar sx={{ width: isSmallScreen ? '100px' : '150px', height: isSmallScreen ? '100px' : '150px' }} />
                             }
                             {userId === currentUser.id
                                 && <Box className="profilePicOverlay"
@@ -171,8 +182,8 @@ const Profile = () => {
                                         position: 'absolute',
                                         top: '0%',
                                         left: '0',
-                                        width: '150px',
-                                        height: '150px',
+                                        width: isSmallScreen ? '100px' : '150px',
+                                        height: isSmallScreen ? '100px' : '150px',
                                         borderRadius: '50%',
                                         display: 'flex',
                                         justifyContent: 'center',
@@ -220,12 +231,12 @@ const Profile = () => {
                     </Button>}
                 </Box>
 
-                <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', gap: 3, marginLeft: 9, width: '100%' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', gap: 3, marginLeft: isSmallScreen ? 5 : 9, width: '100%' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         {/* <Typography variant='h6'>User ID: {userId}</Typography> */}
                         {loading
                             ? <Skeleton width={'100px'} height={'30px'} sx={{ backgroundColor: 'var(--loading-color)' }} />
-                            : <Typography variant='h6'>{userProfile.username}</Typography>
+                            : <Typography variant='h6' sx={{ fontSize: isSmallScreen ? '16px' : 'auto', fontWeight: 700 }}>{userProfile.username}</Typography>
                         }
                         {(currentUser.id === userId)
                             && <Button sx={{
@@ -264,7 +275,7 @@ const Profile = () => {
                                             color: 'var(--primary-text-color)',
                                             '& fieldset': {
                                                 borderColor: 'var(--primary-text-color)',   // normal state
-                                                borderRadius: '15px'
+                                                borderRadius: '10px'
                                             },
                                             '&:hover fieldset': {
                                                 // hover state
@@ -292,7 +303,7 @@ const Profile = () => {
                                             color: 'var(--primary-text-color)',
                                             '& fieldset': {
                                                 borderColor: 'var(--primary-text-color)',   // normal state
-                                                borderRadius: '15px'
+                                                borderRadius: '10px'
                                             },
                                             '&:hover fieldset': {
                                                 // hover state
@@ -315,7 +326,7 @@ const Profile = () => {
                                     defaultValue={userProfile.bio}
                                     onChange={handleEditProfileChange}
                                     multiline
-                                    rows={7}
+                                    rows={5}
                                     sx={{
                                         marginBottom: 0.5,
                                         '& .MuiOutlinedInput-root': {
@@ -370,8 +381,8 @@ const Profile = () => {
                         </Button>}
 
                     </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '50%' }}>
-                        <Typography sx={{ display: 'flex', gap: '5px', alignItems: 'center', color: 'rgba(168, 168, 168, 1)' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: isSmallScreen ? '80%' : '50%', gap: 1 }}>
+                        <Typography sx={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: isSmallScreen ? 0 : '5px', justifyContent: 'center', alignItems: 'start', color: 'white' }}>
                             {loading
                                 ? <Skeleton width={'10px'} height={'32px'} sx={{ backgroundColor: 'var(--loading-color)' }} />
                                 : <span style={{
@@ -379,13 +390,13 @@ const Profile = () => {
                                 }}>{myPosts.length}</span>}
                             {myPosts.length > 1 ? 'posts' : 'post'}
                         </Typography>
-                        <Typography sx={{ display: 'flex', gap: '5px', color: 'rgba(168, 168, 168, 1)' }}>
+                        <Typography sx={{ display: 'flex', justifyContent: 'center', alignItems: 'start', flexDirection: isSmallScreen ? 'column' : 'row', gap: isSmallScreen ? 0 : '5px', color: 'white' }}>
                             <span style={{
                                 fontWeight: 700, color: 'white'
                             }}>{followers?.length}</span>
                             followers
                         </Typography>
-                        <Typography sx={{ display: 'flex', gap: '5px', color: 'rgba(168, 168, 168, 1)' }}>
+                        <Typography sx={{ display: 'flex', alignItems: 'start', justifyContent: 'center', flexDirection: isSmallScreen ? 'column' : 'row', gap: isSmallScreen ? 0 : '5px', color: 'white' }}>
                             <span style={{
                                 fontWeight: 700, color: 'white'
                             }}>{userProfile?.following?.length}</span>
@@ -396,11 +407,11 @@ const Profile = () => {
                         <Typography sx={{ fontWeight: 700, textTransform: 'capitalize' }}>{userProfile?.name}</Typography>
                         {loading
                             ? <Skeleton width={'100px'} height={'30px'} sx={{ backgroundColor: 'var(--loading-color)' }} />
-                            : <Typography sx={{ marginTop: 2 }}>{userProfile?.bio}</Typography>}
+                            : <Typography sx={{ marginTop: 1, marginBottom: 3 }}>{userProfile?.bio}</Typography>}
                     </Box>
                 </Box>
             </Box>
-            <Box sx={{ marginTop: 8, borderBottom: '1px solid #3A3B3C', width: '100%' }}>
+            <Box sx={{ marginTop: isSmallScreen ? 3 : 8, borderBottom: '1px solid #3A3B3C', width: '100%' }}>
                 <Tabs value={value} onChange={handleChange} sx={{
                     width: '100%',
                     '& .MuiTabs-list': { display: 'flex', justifyContent: 'center', gap: '10%' },
@@ -444,7 +455,7 @@ const Profile = () => {
                                         position: 'absolute',
                                         width: '100%',
                                         height: '100%',
-                                        minHeight: '400px',
+                                        minHeight: isSmallScreen ? '200px' : '400px',
                                         backgroundColor: 'rgba(0, 0, 0, 0.78)',
                                         opacity: 0,
                                         display: 'flex',
@@ -466,7 +477,7 @@ const Profile = () => {
                                         <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>{post.comments.length}</Typography>
                                     </Box>
                                 </Box>
-                                <img src={post.image} alt="" style={{ width: '100%', minHeight: '100%', height: '400px', objectFit: 'cover' }} />
+                                <img src={post.image} alt="" style={{ width: '100%', minHeight: '100%', height: isSmallScreen ? '200px' : '400px', objectFit: 'cover' }} />
                             </Grid>))}
                     </Grid>
                 </Box>
@@ -481,7 +492,7 @@ const Profile = () => {
                             </Typography>
                         </Box>
                         :
-                        <Grid container spacing={0.3} sx={{ height: '400px' }}>
+                        <Grid container spacing={0.3} sx={{ height: isSmallScreen ? '200px' : '400px' }}>
                             {savedPosts.map((post, index) => (
                                 <Grid size={4} key={index} sx={{ position: 'relative' }} >
                                     <Box className='overlay'
@@ -490,7 +501,7 @@ const Profile = () => {
                                             position: 'absolute',
                                             width: '100%',
                                             height: '100%',
-                                            minHeight: '400px',
+                                            minHeight: isSmallScreen ? '200px' : '400px',
                                             backgroundColor: 'rgba(0, 0, 0, 0.78)',
                                             opacity: 0,
                                             display: 'flex',
@@ -512,7 +523,7 @@ const Profile = () => {
                                             <Typography sx={{ fontWeight: 700, fontSize: '17px' }}>{post.comments.length}</Typography>
                                         </Box>
                                     </Box>
-                                    <img src={post.image} alt="" style={{ width: '100%', minHeight: '100%', height: '400px', objectFit: 'cover' }} />
+                                    <img src={post.image} alt="" style={{ width: '100%', minHeight: '100%', height: isSmallScreen ? '200px' : '400px', objectFit: 'cover' }} />
                                 </Grid>))}
                             { }
                         </Grid>}
