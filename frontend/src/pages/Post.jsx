@@ -131,11 +131,11 @@ const Post = () => {
                 <Box sx={{ width: isSmallScreen ? '100%' : '60%', height: '100%', background: '#202328', borderRadius: isSmallScreen ? '0 0 10px 10px' : '0px 10px 10px 0', padding: '20px 10px 10px 20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <Box sx={{ height: '100%' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'start', alignItems: 'center', gap: 1.2, cursor: 'pointer' }}>
-                            <Avatar></Avatar>
-                            <Typography sx={{ fontWeight: 600 }}>{post?.author?.username}</Typography>
+                            {post?.author?.profilePic ? <img src={post.author.profilePic} style={{ width: '45px', height: '45px', objectFit: 'cover', borderRadius: '50%' }} /> : <Avatar></Avatar>}
+                            <Typography onClick={() => navigate(`/user/${post.author._id}`)} sx={{ fontWeight: 600 }}>{post?.author?.username}</Typography>
                         </Box>
                         <Typography sx={{ paddingY: 1.5, borderBottom: '1px solid rgb(62, 62, 62)' }}>{post?.caption}</Typography>
-                        <Box sx={{ height: isSmallScreen ? '30vh' : '50vh', overflowY: 'scroll' }}>
+                        <Box sx={{ height: isSmallScreen ? '30vh' : '50vh', overflowY: 'auto' }}>
                             {postComments?.map((comment) => (
                                 <Box sx={{ flex: 1, display: 'flex', justifyContent: 'space-between' }}>
                                     <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'start', marginTop: 1.5 }}>

@@ -1,9 +1,9 @@
-import { Avatar, Box, Button, Container, Grid, Icon, Skeleton, Tab, Tabs, Typography } from '@mui/material'
+import { Avatar, Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Icon, Skeleton, Tab, Tabs, TextField, Typography } from '@mui/material'
 import { Bookmark, CircleAlert, Grid3x3, Heart, ImageDown, ImageUp, MessageCircle, TriangleAlert } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
-import { createFollowMutation, getPostsQuery, getUserProfileQuery, updateProfilePicMutation } from '../context/query';
+import { createFollowMutation, editProfileMutation, getAllUsersQuery, getPostsQuery, getUserProfileQuery, updateProfilePicMutation } from '../context/query';
 import imageCompression from 'browser-image-compression';
 import { toast } from 'react-toastify';
 
@@ -20,11 +20,9 @@ const Profile = () => {
     const [savedPosts, setSavedPosts] = useState([]);
     const [loading, setLoading] = useState(false);
 
-
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
-
 
     const handleProfilePicChange = async () => {
         const file = event.target.files[0]
@@ -64,6 +62,8 @@ const Profile = () => {
     const handleFollowSubmit = async () => {
         try {
             await createFollowMutation(userId);
+            const user = await getUserProfileQuery(userId);
+            setUserProfile(user);
             if (isFollowed) {
                 setFollowers(followers.filter(prev => prev !== userId))
                 setIsFollowed(false)
@@ -80,8 +80,76 @@ const Profile = () => {
 
     useEffect(() => {
         setFollowers(userProfile.followers)
-        setIsFollowed(Boolean(userProfile.followers?.includes(user.id)))
-    }, [userProfile.followers])
+        setIsFollowed(Boolean(userProfile?.followers?.some(follower => follower === user.id)))
+    }, [userProfile])
+
+    const [openEditProfilePopup, setEditProfilePopup] = useState(false);
+
+    const handleOpenEditProfile = () => {
+        setEditProfilePopup(true)
+    }
+
+    const handleCloseEditProfile = () => {
+        setEditProfilePopup(false)
+    }
+    // const [username, setUsername] = useState(null);
+    // const handleUsernameChange = (e) => {
+    //     setUsername(e.target.value)
+    // }
+
+    const [users, setUsers] = useState(null);
+
+    useEffect(() => {
+        async function getUsers() {
+            const users = await getAllUsersQuery();
+            setUsers(users);
+        }
+        getUsers();
+    }, [])
+
+    const [formData, setFormData] = useState({})
+
+    const handleEditProfileChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }))
+    }
+
+    useEffect(() => {
+        if (userProfile) {
+            setFormData({
+                userId: userId,
+                username: userProfile.username,
+                name: userProfile.name,
+                bio: userProfile.bio || ''
+            })
+        }
+    }, [userProfile, userId])
+
+    const handleEditProfileSubmit = async () => {
+        if (users.some(user => user.username === formData.username && user._id !== formData.userId)) {
+            toast('Username already taken')
+            return;
+        }
+        if (!formData.username) {
+            toast('Username cannot be empty')
+            return;
+        }
+        if (!formData.name) {
+            toast('Name cannot be empty')
+            return;
+        }
+        try {
+            await editProfileMutation(formData)
+            handleCloseEditProfile();
+        } catch (error) {
+            console.log("Error saving profile: ", error)
+        }
+        console.log('users', users)
+        console.log('Form data edit', formData)
+    }
 
     return (
         <Container disableGutters maxWidth='md' sx={{
@@ -152,7 +220,7 @@ const Profile = () => {
                     </Button>}
                 </Box>
 
-                <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginLeft: 10, width: '100%' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', gap: 3, marginLeft: 9, width: '100%' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         {/* <Typography variant='h6'>User ID: {userId}</Typography> */}
                         {loading
@@ -168,7 +236,120 @@ const Profile = () => {
                                 textTransform: 'none',
                                 background: 'rgba(43, 48, 54, .8)',
                                 '&:hover': { background: 'rgba(54, 60, 68, 1)' }
-                            }}>Edit profile</Button>}
+                            }}
+                                onClick={handleOpenEditProfile}
+                            >Edit profile</Button>}
+                        <Dialog
+                            open={openEditProfilePopup}
+                            onClose={handleCloseEditProfile}
+                            PaperProps={{
+                                sx: {
+                                    // border: '1px solid white',
+                                    borderRadius: 3,
+                                    width: '100%',
+                                },
+                            }}>
+                            <DialogTitle>Edit Profile</DialogTitle>
+                            <DialogContent sx={{ background: 'black', color: 'white', display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                <Typography variant='h7' sx={{ marginTop: 2 }}>Username</Typography>
+                                <TextField
+                                    name='username'
+                                    placeholder='Username'
+                                    // defaultValue={userProfile.username}
+                                    value={formData.username}
+                                    onChange={handleEditProfileChange}
+                                    sx={{
+                                        marginBottom: 0.5,
+                                        '& .MuiOutlinedInput-root': {
+                                            color: 'var(--primary-text-color)',
+                                            '& fieldset': {
+                                                borderColor: 'var(--primary-text-color)',   // normal state
+                                                borderRadius: '15px'
+                                            },
+                                            '&:hover fieldset': {
+                                                // hover state
+                                                borderColor: 'var(--primary-text-color)',
+                                            },
+                                            '&.Mui-focused fieldset': { // focused state
+                                                borderColor: 'var(--primary-text-color)',
+                                            },
+                                            ".css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input": {
+                                                padding: 1,
+                                            }
+                                        },
+                                    }}>
+                                </TextField>
+                                <Typography variant='h7'>Name</Typography>
+                                <TextField
+                                    placeholder='Name'
+                                    defaultValue={userProfile.name}
+                                    name='name'
+                                    value={formData.name}
+                                    onChange={handleEditProfileChange}
+                                    sx={{
+                                        marginBottom: 0.5,
+                                        '& .MuiOutlinedInput-root': {
+                                            color: 'var(--primary-text-color)',
+                                            '& fieldset': {
+                                                borderColor: 'var(--primary-text-color)',   // normal state
+                                                borderRadius: '15px'
+                                            },
+                                            '&:hover fieldset': {
+                                                // hover state
+                                                borderColor: 'var(--primary-text-color)',
+                                            },
+                                            '&.Mui-focused fieldset': { // focused state
+                                                borderColor: 'var(--primary-text-color)',
+                                            },
+                                            ".css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input": {
+                                                padding: 1,
+                                            }
+                                        },
+                                    }}>
+                                </TextField>
+                                <Typography variant='h7'>Bio</Typography>
+                                <TextField
+                                    placeholder='Bio'
+                                    name='bio'
+                                    value={formData.bio}
+                                    defaultValue={userProfile.bio}
+                                    onChange={handleEditProfileChange}
+                                    multiline
+                                    rows={7}
+                                    sx={{
+                                        marginBottom: 0.5,
+                                        '& .MuiOutlinedInput-root': {
+                                            color: 'var(--primary-text-color)',
+                                            '& fieldset': {
+                                                borderColor: 'var(--primary-text-color)',   // normal state
+                                                borderRadius: '15px'
+                                            },
+                                            '&:hover fieldset': {
+                                                // hover state
+                                                borderColor: 'var(--primary-text-color)',
+                                            },
+                                            '&.Mui-focused fieldset': { // focused state
+                                                borderColor: 'var(--primary-text-color)',
+                                            },
+                                            ".css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input": {
+                                                padding: 1,
+                                            }
+                                        },
+                                    }}>
+                                </TextField>
+                            </DialogContent>
+                            <DialogActions sx={{ background: 'black', color: 'white' }}>
+                                <Button
+                                    onClick={handleEditProfileSubmit}
+                                    sx={{ background: 'rgba(74, 93, 249,1)', border: '1px solid rgba(74, 93, 249,1)', color: 'white', fontWeight: 700, textTransform: 'none', borderRadius: '10px', }}>
+                                    Save profile
+                                </Button>
+                                <Button onClick={handleCloseEditProfile}
+                                    sx={{ background: 'black', color: 'white', border: '1px solid white', fontWeight: 700, textTransform: 'none', borderRadius: '10px', }}>
+                                    Cancel
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
                         {(currentUser.id !== userId) && <Button
                             onClick={handleFollowSubmit}
                             sx={{
@@ -196,7 +377,6 @@ const Profile = () => {
                                 : <span style={{
                                     fontWeight: 700, color: 'white'
                                 }}>{myPosts.length}</span>}
-
                             {myPosts.length > 1 ? 'posts' : 'post'}
                         </Typography>
                         <Typography sx={{ display: 'flex', gap: '5px', color: 'rgba(168, 168, 168, 1)' }}>
@@ -212,15 +392,15 @@ const Profile = () => {
                             following
                         </Typography>
                     </Box>
-                    <Box sx={{ paddingBottom: userProfile.bio ? 0 : 5 }}>
+                    <Box sx={{ marginTop: 1 }}>
                         <Typography sx={{ fontWeight: 700, textTransform: 'capitalize' }}>{userProfile?.name}</Typography>
                         {loading
                             ? <Skeleton width={'100px'} height={'30px'} sx={{ backgroundColor: 'var(--loading-color)' }} />
-                            : <Typography>{userProfile?.bio}</Typography>}
+                            : <Typography sx={{ marginTop: 2 }}>{userProfile?.bio}</Typography>}
                     </Box>
                 </Box>
             </Box>
-            <Box sx={{ marginTop: 10, borderBottom: '1px solid #3A3B3C', width: '100%' }}>
+            <Box sx={{ marginTop: 8, borderBottom: '1px solid #3A3B3C', width: '100%' }}>
                 <Tabs value={value} onChange={handleChange} sx={{
                     width: '100%',
                     '& .MuiTabs-list': { display: 'flex', justifyContent: 'center', gap: '10%' },

@@ -22,6 +22,27 @@ const getPostsQuery = async () => {
     }
 }
 
+const getAllUsersQuery = async () => {
+    try {
+        // setLoading(true)
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        const data = await res.json();
+        console.log("Data", data)
+        // setLoading(false)
+        return data;
+    } catch (err) {
+        console.error("Error:", err.message)
+        console.error('Something went wrong')
+    }
+}
+
 const deletePostMutation = async (postId) => {
     try {
         const token = localStorage.getItem("token");
@@ -186,6 +207,34 @@ const updateProfilePicMutation = async (image, userId) => {
     }
 }
 
+const editProfileMutation = async ({ userId, username, name, bio }) => {
+    try {
+        const token = localStorage.getItem("token");
+        // const formData = new FormData();
+        // if (image) formData.append('image', image);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/user/${userId}/editProfile`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ username, name, bio }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            toast.error('Cannot update this profile')
+            console.log('data', data)
+        } else {
+            toast.success("Profile updated successfully!");
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        }
+    } catch (error) {
+        console.error("Error updating profile:", error.message)
+    }
+}
+
 const createFollowMutation = async (userId) => {
     try {
         const token = localStorage.getItem("token");
@@ -209,4 +258,4 @@ const createFollowMutation = async (userId) => {
     }
 }
 
-export { getPostsQuery, deletePostMutation, createLikeMutation, createSavedMutation, getUserProfileQuery, createCommentMutation, deleteCommentMutation, updateProfilePicMutation, createFollowMutation };
+export { getPostsQuery, deletePostMutation, createLikeMutation, createSavedMutation, getUserProfileQuery, createCommentMutation, deleteCommentMutation, updateProfilePicMutation, createFollowMutation, editProfileMutation, getAllUsersQuery };
