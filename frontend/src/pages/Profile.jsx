@@ -159,13 +159,13 @@ const Profile = () => {
             paddingY: isSmallScreen ? 0 : 7,
             width: '100%'
         }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 0.7, borderBottom: '1px solid var(--loading-color)' }}>
+            {isSmallScreen && <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 0.7, borderBottom: '1px solid var(--loading-color)' }}>
                 <IconButton onClick={() => navigate(-1)}>
                     <ChevronLeft stroke='white' />
                 </IconButton>
                 <Typography sx={{ fontWeight: 700 }}>{userProfile.username}</Typography>
                 <Box sx={{ flexBasis: '40px' }}></Box>
-            </Box>
+            </Box>}
             <Box sx={{ display: 'flex', paddingTop: 2, paddingX: isSmallScreen ? 2 : 0 }}>
                 <Box sx={{ textAlign: 'center', position: 'relative' }}>
                     <label htmlFor='upload-image'>
