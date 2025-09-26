@@ -2,6 +2,8 @@ import { Avatar, Box, Button, Container, Divider, IconButton, Skeleton, Typograp
 import React, { useEffect, useState } from 'react'
 import { ArrowLeft, ChevronLeft, Trash } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { deleteUserMutation } from '../context/query';
+import { toast } from 'react-toastify';
 
 const Users = () => {
     const [users, setUsers] = useState([]);
@@ -25,6 +27,17 @@ const Users = () => {
         } catch (err) {
             console.error("Error:", err.message)
             console.error('Something went wrong')
+        }
+    }
+
+    const handleDeleteUser = async (userId) => {
+        try {
+            const user = await deleteUserMutation(userId);
+            toast(`User ${user.username} deleted!`)
+            getAllUsers();
+        } catch (error) {
+            console.log("Error deleting user: ", error);
+            toast('Error deleting user')
         }
     }
 
@@ -60,25 +73,29 @@ const Users = () => {
                     :
                     users?.map((user, index) => (
                         <Box
-                            onClick={() => navigate(`/user/${user._id}`)}
+
                             key={user._id}
                             sx={{ display: 'flex', alignItems: 'center', gap: 2.5, paddingY: 1.5, borderBottom: (users.length - 1) !== index ? '1px solid grey' : 'none', cursor: 'pointer' }}>
                             {user.profilePic
                                 ? <img src={user.profilePic} style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
                                 : <Avatar style={{ width: '50px', height: '50px', borderRadius: '50%' }} />}
-                            <Box sx={{ flex: 1 }}>
+                            <Box
+                                onClick={() => navigate(`/user/${user._id}`)}
+                                sx={{ flex: 1 }}>
                                 <Typography variant='body1' sx={{ fontWeight: 700 }}>{user.name}</Typography>
                                 <Typography variant='body2' sx={{ color: 'var(--loading-color)' }}>@{user.username}</Typography>
                                 <Typography variant='body2' sx={{ color: 'var(--loading-color)' }}>{user?.posts.length} posts</Typography>
                             </Box>
-                            <Button sx={{
-                                // background: 'white',
-                                color: 'white',
-                                textTransform: 'capitalize',
-                                '&:hover': {
-                                    color: 'rgb(145, 145, 145)',
-                                }
-                            }}>
+                            <Button
+                                onClick={() => handleDeleteUser(user._id)}
+                                sx={{
+                                    // background: 'white',
+                                    color: 'white',
+                                    textTransform: 'capitalize',
+                                    '&:hover': {
+                                        color: 'rgb(145, 145, 145)',
+                                    }
+                                }}>
                                 <Trash />
                             </Button>
                         </Box>

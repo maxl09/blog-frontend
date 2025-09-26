@@ -258,4 +258,27 @@ const createFollowMutation = async (userId) => {
     }
 }
 
-export { getPostsQuery, deletePostMutation, createLikeMutation, createSavedMutation, getUserProfileQuery, createCommentMutation, deleteCommentMutation, updateProfilePicMutation, createFollowMutation, editProfileMutation, getAllUsersQuery };
+const deleteUserMutation = async (userId) => {
+    try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${userId}/delete`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ userId })
+        });
+        const data = await res.json();
+        console.log("Deleted user", data);
+        if (!res.ok) {
+            toast.error("Error deleting the user")
+        }
+        return data;
+    } catch (error) {
+        console.error("Error:", error.message)
+        console.error('Something went wrong')
+    }
+}
+
+export { getPostsQuery, deletePostMutation, createLikeMutation, createSavedMutation, getUserProfileQuery, createCommentMutation, deleteCommentMutation, updateProfilePicMutation, createFollowMutation, editProfileMutation, getAllUsersQuery, deleteUserMutation };

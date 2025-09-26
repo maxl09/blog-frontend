@@ -139,7 +139,7 @@ const Post = () => {
                             {postComments?.map((comment) => (
                                 <Box sx={{ flex: 1, display: 'flex', justifyContent: 'space-between' }}>
                                     <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'start', marginTop: 1.5 }}>
-                                        <Avatar sx={{ width: '30px', height: '30px', marginTop: 0.4 }} />
+                                        {comment?.author?.profilePic ? <img src={comment?.author?.profilePic} style={{ width: '30px', height: '30px', borderRadius: '50%' }} /> : <Avatar sx={{ width: '30px', height: '30px', marginTop: 0.4 }} />}
                                         <Box>
                                             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                                                 <Typography sx={{ fontWeight: 700, fontSize: isSmallScreen ? '14px' : '16px' }}>{comment?.author?.username} <span style={{ fontWeight: 400, fontSize: isSmallScreen ? '13px' : '15px', lineHeight: '5px' }}>{comment?.text}</span></Typography>
