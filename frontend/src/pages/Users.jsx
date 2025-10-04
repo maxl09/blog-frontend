@@ -1,6 +1,6 @@
 import { Avatar, Box, Button, Container, Divider, IconButton, Skeleton, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react'
-import { ArrowLeft, ChevronLeft, Trash } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, Shield, Trash } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { deleteUserMutation } from '../context/query';
 import { toast } from 'react-toastify';
@@ -46,62 +46,68 @@ const Users = () => {
     }, [])
 
     return (
-        <Container disableGutters maxWidth='sm' sx={{ paddingY: 6 }}>
+        <Container disableGutters maxWidth='sm' sx={{ paddingY: 6, paddingX: { xs: 2, sm: 0 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                 <IconButton onClick={() => navigate(-1)} sx={{ color: 'white', }}>
                     <ArrowLeft size={35} />
                 </IconButton>
-                <Typography variant='h3' sx={{ textAlign: 'center', marginBottom: 4 }}>
-                    Users
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, marginBottom: 4 }}>
+                    <Shield size={35} />
+                    <Typography variant='h4' sx={{ textAlign: 'center', fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                        Admin Portal
+                    </Typography>
+                </Box>
                 <IconButton sx={{ color: 'white', opacity: 0, cursor: 'default' }}>
                     <ArrowLeft />
                 </IconButton>
             </Box>
+            <Box sx={{ borderRadius: '10px', paddingY: 2, paddingX: 2, border: '1px solid gray' }}>
+                <Typography variant='h6' sx={{ textAlign: 'start', marginLeft: 1, marginBottom: 1.5 }}>
+                    User Management
+                </Typography>
 
-            <Box sx={{ border: '1px solid white', borderRadius: '20px', paddingY: 1.5, paddingX: 3 }}>
-                {loading
-                    ?
-                    <>
-                        {Array.from({ length: 3 }).map(() => (
-                            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', paddingY: 1.5 }}>
-                                <Skeleton variant='circular' height={40} width={40} sx={{ backgroundColor: 'var(--loading-color)' }} />
-                                <Skeleton variant='rounded' height={60} width={'100%'} sx={{ backgroundColor: 'var(--loading-color)' }} />
+                <Box sx={{ border: '1px solid gray', borderRadius: '10px', paddingY: 0.5, paddingX: 2 }}>
+                    {loading
+                        ?
+                        <>
+                            {Array.from({ length: 3 }).map(() => (
+                                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', paddingY: 1.5 }}>
+                                    <Skeleton variant='circular' height={40} width={40} sx={{ backgroundColor: 'var(--loading-color)' }} />
+                                    <Skeleton variant='rounded' height={60} width={'100%'} sx={{ backgroundColor: 'var(--loading-color)' }} />
+                                </Box>
+                            ))}
+                        </>
+                        :
+                        users?.map((user, index) => (
+                            <Box
+                                key={user._id}
+                                sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2.5 }, paddingY: 1.5, borderBottom: (users.length - 1) !== index ? '1px solid grey' : 'none', cursor: 'pointer' }}>
+                                {user.profilePic
+                                    ? <img src={user.profilePic} style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
+                                    : <Avatar style={{ width: '50px', height: '50px', borderRadius: '50%' }} />}
+                                <Box
+                                    onClick={() => navigate(`/user/${user._id}`)}
+                                    sx={{ flex: 1 }}>
+                                    <Typography variant='body1' sx={{ fontWeight: 700, color: 'white', fontSize: { xs: '0.8rem', sm: '1rem' } }}>{user.name}</Typography>
+                                    <Typography variant='body2' sx={{ color: 'var(--loading-color)', fontSize: { xs: '0.7rem', sm: '1rem' } }}>@{user.username}</Typography>
+                                    <Typography variant='body2' sx={{ color: 'var(--loading-color)', fontSize: { xs: '0.7rem', sm: '1rem' } }}>{user?.posts.length} posts</Typography>
+                                </Box>
+                                <Button
+                                    onClick={() => handleDeleteUser(user._id)}
+                                    sx={{
+                                        // background: 'white',
+                                        color: 'white',
+                                        textTransform: 'capitalize',
+                                        '&:hover': {
+                                            color: 'rgb(145, 145, 145)',
+                                        }
+                                    }}>
+                                    <Trash />
+                                </Button>
                             </Box>
                         ))}
-                    </>
-                    :
-                    users?.map((user, index) => (
-                        <Box
-
-                            key={user._id}
-                            sx={{ display: 'flex', alignItems: 'center', gap: 2.5, paddingY: 1.5, borderBottom: (users.length - 1) !== index ? '1px solid grey' : 'none', cursor: 'pointer' }}>
-                            {user.profilePic
-                                ? <img src={user.profilePic} style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
-                                : <Avatar style={{ width: '50px', height: '50px', borderRadius: '50%' }} />}
-                            <Box
-                                onClick={() => navigate(`/user/${user._id}`)}
-                                sx={{ flex: 1 }}>
-                                <Typography variant='body1' sx={{ fontWeight: 700 }}>{user.name}</Typography>
-                                <Typography variant='body2' sx={{ color: 'var(--loading-color)' }}>@{user.username}</Typography>
-                                <Typography variant='body2' sx={{ color: 'var(--loading-color)' }}>{user?.posts.length} posts</Typography>
-                            </Box>
-                            <Button
-                                onClick={() => handleDeleteUser(user._id)}
-                                sx={{
-                                    // background: 'white',
-                                    color: 'white',
-                                    textTransform: 'capitalize',
-                                    '&:hover': {
-                                        color: 'rgb(145, 145, 145)',
-                                    }
-                                }}>
-                                <Trash />
-                            </Button>
-                        </Box>
-                    ))}
+                </Box>
             </Box>
-
         </Container >
     )
 }
