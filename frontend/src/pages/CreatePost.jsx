@@ -40,18 +40,24 @@ const CreatePost = () => {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/posts/create`, {
                 method: "POST",
                 headers: {
-                    // "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
                 body: formData,
             });
+
+            if (!res.ok) {
+                const errorText = await res.text(); // read raw error for debugging
+                toast.error(`Failed to create post: ${errorText}`)
+                return;
+            }
             const data = await res.json();
-            console.log("Post created:", data);
+            // console.log("Post created:", data);
+            toast.success('Post created successfully!')
             navigate('/');
         } catch (error) {
             console.error("Error creating post:", error.message)
-        } finally {
-            toast.success('Post created successfully!')
+        }
+        finally {
             setLoading(false);
         }
     }
